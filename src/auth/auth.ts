@@ -1,6 +1,30 @@
 import { config } from '../config/index.ts';
+import type { AccessTokenResponse } from '../types/index.ts';
+
+let accessTokenCache: {
+  token: string;
+  expiresAt: number;
+} | null = null;
 
 export async function getAccessToken(): Promise<string> {
+  const now = Date.now();
+
+  if (accessTokenCache && accessTokenCache.expiresAt > now) {
+    return accessTokenCache.token;
+  }
+
+  const response = await fetchAccessToken();
+  const expiresAt = now + response.expires_in * 1000 - 5000; // Subtract 5 seconds for safety
+
+  accessTokenCache = {
+    token: response.access_token,
+    expiresAt,
+  };
+
+  return response.access_token;
+}
+
+async function fetchAccessToken(): Promise<AccessTokenResponse> {
   const { clientId, clientSecret, password, username, userAgent } = config;
   const basicAuth = btoa(`${clientId}:${clientSecret}`);
 
@@ -31,10 +55,5 @@ export async function getAccessToken(): Promise<string> {
     throw new Error(`Failed to fetch access token: ${response.statusText}`);
   }
 
-  const data = await response.json();
-  if (!data.access_token) {
-    console.error('Access token not found in response:', data);
-    throw new Error('Access token not found in response');
-  }
-  return data.access_token;
+  return response.json();
 }

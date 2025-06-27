@@ -4,8 +4,8 @@
     "@/": "./"
   },
   "tasks": {
-    "dev": "deno run --watch --allow-env --allow-read --allow-net ./src/main.ts",
-    "start": "deno run --allow-env --allow-read --allow-net ./src/main.ts"
+    "dev": "deno run --watch --allow-env --allow-read --allow-net --allow-write ./src/main.ts",
+    "start": "deno run --allow-env --allow-read --allow-net --allow-write ./src/main.ts"
   },
   "lint": {
     "rules": {

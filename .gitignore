@@ -24,3 +24,5 @@ Thumbs.db
 # Build outputs
 dist/
 build/
+
+post-cache.json
