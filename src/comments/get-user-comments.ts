@@ -1,5 +1,5 @@
 import { config } from '../config/index.ts';
-import { RedditComment, RedditCommentResponse } from '../types/index.ts';
+import type { RedditComment, RedditCommentResponse } from '../types/index.ts';
 
 export async function getUserComments(
   username: string,

@@ -6,5 +6,30 @@
   "tasks": {
     "dev": "deno run --watch --allow-env --allow-read --allow-net ./src/main.ts",
     "start": "deno run --allow-env --allow-read --allow-net ./src/main.ts"
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"],
+      "include": [
+        "no-unused-vars",
+        "no-await-in-loop",
+        "prefer-const",
+        "no-var"
+      ]
+    },
+    "include": ["src/**/*.ts", "main.ts"]
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "singleQuote": true,
+    "proseWrap": "preserve",
+    "trailingCommas": "onlyMultiLine",
+    "include": ["src/**/*.ts", "main.ts"]
+  },
+  "compilerOptions": {
+    "strict": true,
+    "verbatimModuleSyntax": true
   }
 }
