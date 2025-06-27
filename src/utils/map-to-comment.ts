@@ -1,4 +1,4 @@
-import { Comment, RedditComment } from '../types/index.ts';
+import type { Comment, RedditComment } from '../types/index.ts';
 
 export function mapToComment(redditComment: RedditComment): Comment {
   return {
