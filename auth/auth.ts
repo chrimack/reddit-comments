@@ -1,15 +1,14 @@
-import { config } from '@/config/index.ts';
+import { config } from '../config/index.ts';
 
 export async function getAccessToken(): Promise<string> {
-  const { clientId, clientSecret, password, username } = config;
+  const { clientId, clientSecret, password, username, userAgent } = config;
   const basicAuth = btoa(`${clientId}:${clientSecret}`);
-  const USER_AGENT = `personal-script:comment-watcher:v1.0.0 (by /u/${username})`;
 
   const url = new URL('https://www.reddit.com/api/v1/access_token');
 
   const headers = new Headers({
     Authorization: `Basic ${basicAuth}`,
-    'User-Agent': USER_AGENT,
+    'User-Agent': userAgent,
     'Content-Type': 'application/x-www-form-urlencoded',
   });
 
@@ -37,6 +36,5 @@ export async function getAccessToken(): Promise<string> {
     console.error('Access token not found in response:', data);
     throw new Error('Access token not found in response');
   }
-  console.log('Access token fetched successfully:', data.access_token);
   return data.access_token;
 }

@@ -7,4 +7,5 @@ export const config = {
   clientSecret: env.CLIENT_SECRET,
   password: env.PASSWORD,
   username: env.USERNAME,
+  userAgent: `personal-script:comment-watcher:v1.0.0 (by /u/${env.USERNAME})`,
 };
