@@ -3,10 +3,14 @@ export interface Comment {
   subredditId: string;
   subreddit: string;
 
-  /** Title of the post */
+  /**
+   * TODO: This is undefined when getting the comments from the post instead of the user.
+   * Title of the post */
   linkTitle: string;
 
-  /** Author of the post (not comment author) */
+  /**
+   * TODO: This is undefined when getting the comments from the post instead of the user.
+   * Author of the post (not comment author) */
   postAuthor: string;
 
   /** Comment author */

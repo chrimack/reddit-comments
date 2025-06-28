@@ -12,7 +12,6 @@ export async function getPostByTitle(
   if (cachedPost) return cachedPost;
 
   const post = await fetchPostByTitle(subreddit, title, accessToken);
-  console.log(`Fetched post by title "${title}":`, post);
   setCache<PostMeta>(config.cache.posts, post);
 
   return post;

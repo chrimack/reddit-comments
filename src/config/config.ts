@@ -11,7 +11,16 @@ const auth = {
 };
 
 const app = {
-  users: ['e77754321', 'IrresponsibleBetting'],
+  users: [
+    'abetterbettor',
+    'e77754321',
+    'IrresponsibleBetting',
+    'PropsPulse',
+    'quarterkelly',
+    'Romans828Believer',
+    'Skipperdees_ears',
+    'UnusualBad5037',
+  ],
   subreddit: 'sportsbook',
   titles: {
     mlb: getPostTitle('MLB'),
