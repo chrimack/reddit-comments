@@ -25,7 +25,8 @@ export async function getAccessToken(): Promise<string> {
 }
 
 async function fetchAccessToken(): Promise<AccessTokenResponse> {
-  const { clientId, clientSecret, password, username, userAgent } = config;
+  const { auth, userAgent } = config;
+  const { clientId, clientSecret, username, password } = auth;
   const basicAuth = btoa(`${clientId}:${clientSecret}`);
 
   const url = new URL('https://www.reddit.com/api/v1/access_token');

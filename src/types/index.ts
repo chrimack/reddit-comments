@@ -1,5 +1,6 @@
 export type { AccessTokenResponse } from './access-token.ts';
 export type { Comment } from './comment.ts';
+export type { League } from './leagues.ts';
 export type { PostMeta } from './post-meta.ts';
 export type {
   RedditComment,

@@ -1,18 +1,19 @@
 import { config } from '../config/index.ts';
 import type { PostMeta } from '../types/index.ts';
-import { getCachedPost, setCachedPost } from '../utils/index.ts';
+import { getFromCache, setCache } from '../utils/index.ts';
 
 export async function getPostByTitle(
   subreddit = 'sportsbook',
   title: string,
   accessToken: string
 ): Promise<PostMeta> {
-  const cachedPost = getCachedPost();
+  const cachedPost = getFromCache<PostMeta>(config.cache.posts);
 
   if (cachedPost) return cachedPost;
 
   const post = await fetchPostByTitle(subreddit, title, accessToken);
-  setCachedPost(post);
+  console.log(`Fetched post by title "${title}":`, post);
+  setCache<PostMeta>(config.cache.posts, post);
 
   return post;
 }
