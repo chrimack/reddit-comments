@@ -9,8 +9,8 @@ import { RedditClient } from './reddit.client.ts';
 import { RedditUtils } from './reddit.utils.ts';
 
 async function getPostByTitle(
-  subreddit = 'sportsbook',
-  title: string
+  title: string,
+  subreddit = 'sportsbook'
 ): Promise<PostMeta> {
   const cachedPost = FileCache.get<PostMeta>(config.cache.posts);
 
