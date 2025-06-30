@@ -11,10 +11,8 @@ export class NtfyClient {
   public async sendNotification(
     payload: NtfyNotificationPayload
   ): Promise<void> {
-    const response = await this.client.post('', {
+    await this.client.post('', {
       body: JSON.stringify(payload),
     });
-
-    console.log('Notification sent successfully:', response);
   }
 }

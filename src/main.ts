@@ -12,5 +12,5 @@ async function runForLeague(league: League) {
     })
   );
 }
-console.log(Leagues);
-// Leagues.forEach(runForLeague);
+// console.log(Leagues);
+Leagues.forEach(runForLeague);
