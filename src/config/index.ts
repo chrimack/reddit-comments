@@ -1,4 +1,4 @@
-import { Logger } from '@logger';
+import { Logger } from '@/logger';
 import { appConfig } from './app.ts';
 import { authConfig } from './auth.ts';
 import { cacheConfig } from './cache.ts';

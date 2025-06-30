@@ -1,5 +1,5 @@
 import { HttpClient } from '@/http';
-import { Logger } from '@logger';
+import { Logger } from '@/logger';
 import type { NtfyNotificationPayload } from './types.ts';
 
 export class NtfyClient {

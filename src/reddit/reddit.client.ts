@@ -1,13 +1,13 @@
 import { config } from '@/config';
 import { HttpClient } from '@/http';
-import { Logger } from '@logger';
+import { Logger } from '@/logger';
 import type {
   AccessTokenResponse,
   PostMeta,
   RedditComment,
   RedditListing,
   RedditPost,
-} from '@reddit/types';
+} from '@/reddit/types';
 
 export class RedditClient {
   private client: HttpClient;

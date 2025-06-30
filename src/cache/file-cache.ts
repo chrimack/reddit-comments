@@ -1,5 +1,5 @@
 import type { League } from '@/leagues';
-import { Logger } from '@logger';
+import { Logger } from '@/logger';
 import { dirname } from 'https://deno.land/std/path/mod.ts';
 
 function getCacheKey(league: League): string {

@@ -1,12 +1,12 @@
 import { FileCache } from '@/cache';
 import { config } from '@/config';
 import { LeagueUtils, type League } from '@/leagues';
-import { Logger } from '@logger';
+import { Logger } from '@/logger';
 import type {
   PostMeta,
   UserComment,
   UserCommentSyncResult,
-} from '@reddit/types';
+} from '@/reddit/types';
 import { RedditClient } from './reddit.client.ts';
 import { RedditUtils } from './reddit.utils.ts';
 

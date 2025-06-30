@@ -1,4 +1,4 @@
-import type { RedditComment, UserComment } from '@reddit/types';
+import type { RedditComment, UserComment } from '@/reddit/types';
 
 function fromRedditComment(redditComment: RedditComment): UserComment {
   return {

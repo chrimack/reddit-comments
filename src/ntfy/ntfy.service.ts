@@ -1,4 +1,4 @@
-import { Logger } from '@logger';
+import { Logger } from '@/logger';
 import { NtfyClient } from './ntfy.client.ts';
 import type { NtfyNotificationRequest } from './types.ts';
 

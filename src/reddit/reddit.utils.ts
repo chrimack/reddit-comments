@@ -1,5 +1,5 @@
 import { config } from '@/config';
-import type { RedditComment, UserComment } from '@reddit/types';
+import type { RedditComment, UserComment } from '@/reddit/types';
 import { RedditMapper } from './reddit.mapper.ts';
 
 function processRedditComments(redditComments: RedditComment[]): UserComment[] {

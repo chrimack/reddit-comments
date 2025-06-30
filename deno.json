@@ -2,14 +2,15 @@
   "imports": {
     "std/": "https://deno.land/std@0.208.0/",
     "@/": "./src/",
+    "@/app": "./src/app.index.ts",
     "@/cache": "./src/cache/index.ts",
     "@/config": "./src/config/index.ts",
     "@/http": "./src/http/index.ts",
     "@/leagues": "./src/leagues/index.ts",
-    "@logger": "./src/logger/index.ts",
+    "@/logger": "./src/logger/index.ts",
     "@/ntfy": "./src/ntfy/index.ts",
     "@/reddit": "./src/reddit/index.ts",
-    "@reddit/types": "./src/reddit/types/index.ts"
+    "@/reddit/types": "./src/reddit/types/index.ts"
   },
   "tasks": {
     "dev": "deno run --watch --allow-env --allow-read --allow-net --allow-write ./src/main.ts",
