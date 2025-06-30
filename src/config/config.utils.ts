@@ -1,6 +1,6 @@
-import type { League } from '../types/index.ts';
+import type { League } from './types/leagues.ts';
 
-export function getPostTitle(league: League): string {
+function getPostTitle(league: League): string {
   const dateInfo = getDateInfo();
   return `${leagueTitles[league]} - ${dateInfo}`;
 }
@@ -19,3 +19,5 @@ const leagueTitles: Record<League, string> = {
   MLB: 'MLB Betting and Picks',
   WNBA: 'WNBA Picks and Odds',
 };
+
+export const ConfigUtils = { getPostTitle };
