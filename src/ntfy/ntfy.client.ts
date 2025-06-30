@@ -1,5 +1,5 @@
 import { HttpClient } from '@/http';
-import type { NtfyNotificationPayload } from './types/ntfy-notification.ts';
+import type { NtfyNotificationPayload } from './types.ts';
 
 export class NtfyClient {
   private client: HttpClient;

@@ -1,5 +1,5 @@
 import { NtfyClient } from './ntfy.client.ts';
-import type { NtfyNotificationRequest } from './types/ntfy-notification.ts';
+import type { NtfyNotificationRequest } from './types.ts';
 
 const TOPIC = 'reddit-watcher-swapping-carnation5-stability';
 const REDDIT_BASE_URL = 'https://reddit.com';

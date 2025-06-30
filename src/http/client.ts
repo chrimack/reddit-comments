@@ -1,4 +1,4 @@
-import type { RequestInitWithQuery } from './types/http.ts';
+import type { RequestInitWithQuery } from './types.ts';
 
 export class HttpClient {
   constructor(private baseUrl: string) {}

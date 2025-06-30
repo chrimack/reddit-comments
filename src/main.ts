@@ -1,17 +1,16 @@
-// import { NtfyService } from '@/ntfy';
 import { Leagues, type League } from '@/leagues';
+import { NtfyService } from '@/ntfy';
 import { RedditService } from '@/reddit';
-
-// comments.updated.forEach((comment) =>
-//   NtfyService.sendCommentNotification({
-//     permalink: comment.permalink,
-//     username: comment.author,
-//   })
-// );
 
 async function runForLeague(league: League) {
   const post = await RedditService.getPostByTitle(league);
-  const _comments = await RedditService.getPostComments(post.permalink, league);
+  const comments = await RedditService.getPostComments(post.permalink, league);
+  comments.updated.forEach((comment) =>
+    NtfyService.sendCommentNotification({
+      permalink: comment.permalink,
+      username: comment.author,
+    })
+  );
 }
-
-Leagues.forEach(runForLeague);
+console.log(Leagues);
+// Leagues.forEach(runForLeague);
