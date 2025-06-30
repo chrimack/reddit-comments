@@ -1,4 +1,5 @@
 import { config } from '@/config';
+import { NtfyService } from '@/ntfy';
 import { RedditService } from '@/reddit';
 
 const subreddit = config.app.subreddit;
@@ -6,8 +7,11 @@ const title = config.app.titles.mlb;
 
 const post = await RedditService.getPostByTitle(subreddit, title);
 
-const _comments = await RedditService.getPostComments(post.permalink);
+const comments = await RedditService.getPostComments(post.permalink);
 
-// console.log(comments);
-
-// sendNotification(comments.all[0].permalink);
+comments.updated.forEach((comment) =>
+  NtfyService.sendCommentNotification({
+    permalink: comment.permalink,
+    username: comment.author,
+  })
+);

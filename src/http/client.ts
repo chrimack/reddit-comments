@@ -47,7 +47,7 @@ export class HttpClient {
     return this.request<T>(path, {
       ...init,
       headers: {
-        // 'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
         ...init.headers,
       },
       method: 'POST',
