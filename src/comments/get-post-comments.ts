@@ -1,7 +1,7 @@
 import { config } from '../config/index.ts';
 import { RedditClient } from '../http-client/index.ts';
 import type { Comment, RedditComment } from '../types/index.ts';
-import { CacheUtils, mapToComment } from '../utils/index.ts';
+import { CacheUtils, fromRedditComment } from '../utils/index.ts';
 
 export async function getPostComments(
   permalink: string
@@ -28,7 +28,7 @@ export async function getPostComments(
 function processRedditComments(redditComments: RedditComment[]): Comment[] {
   return redditComments
     .filter((comment) => config.app.users.includes(comment.author))
-    .map((comment) => mapToComment(comment));
+    .map((comment) => fromRedditComment(comment));
 }
 
 function getNewOrUpdatedComments(

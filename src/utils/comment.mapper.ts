@@ -1,6 +1,6 @@
 import type { Comment, RedditComment } from '../types/index.ts';
 
-export function mapToComment(redditComment: RedditComment): Comment {
+export function fromRedditComment(redditComment: RedditComment): Comment {
   return {
     id: redditComment.id,
     subredditId: redditComment.subreddit_id,
