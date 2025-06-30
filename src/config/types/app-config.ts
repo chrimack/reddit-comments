@@ -4,10 +4,4 @@ export interface AppConfig {
 
   /** Subreddit to search */
   subreddit: string;
-
-  /** Post titles */
-  titles: {
-    mlb: string;
-    wnba: string;
-  };
 }

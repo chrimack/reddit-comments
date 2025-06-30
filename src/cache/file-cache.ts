@@ -1,8 +1,13 @@
+import type { League } from '@/leagues';
 import { dirname } from 'https://deno.land/std/path/mod.ts';
 
-function getTodayKey(): string {
+function getCacheKey(league: League): string {
   const today = new Date();
-  return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+  const date = `${today.getFullYear()}-${
+    today.getMonth() + 1
+  }-${today.getDate()}`;
+
+  return `${date}-${league}`;
 }
 
 function ensureDirForFile(filePath: string): void {
@@ -48,15 +53,15 @@ function saveCache<T>(filePath: string, cache: Record<string, T>): void {
   }
 }
 
-function get<T>(filePath: string): T | null {
+function get<T>(filePath: string, league: League): T | null {
   const cache = loadCache<T>(filePath);
-  const key = getTodayKey();
+  const key = getCacheKey(league);
   return cache[key] ?? null;
 }
 
-function set<T>(filePath: string, value: T): void {
+function set<T>(filePath: string, value: T, league: League): void {
   const cache = loadCache<T>(filePath);
-  const key = getTodayKey();
+  const key = getCacheKey(league);
   cache[key] = value;
   saveCache(filePath, cache);
 }

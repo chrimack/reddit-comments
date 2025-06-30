@@ -1,16 +1,17 @@
-import { config } from '@/config';
-import { NtfyService } from '@/ntfy';
+// import { NtfyService } from '@/ntfy';
+import { Leagues, type League } from '@/leagues';
 import { RedditService } from '@/reddit';
 
-const title = config.app.titles.mlb;
+// comments.updated.forEach((comment) =>
+//   NtfyService.sendCommentNotification({
+//     permalink: comment.permalink,
+//     username: comment.author,
+//   })
+// );
 
-const post = await RedditService.getPostByTitle(title);
+async function runForLeague(league: League) {
+  const post = await RedditService.getPostByTitle(league);
+  const _comments = await RedditService.getPostComments(post.permalink, league);
+}
 
-const comments = await RedditService.getPostComments(post.permalink);
-
-comments.updated.forEach((comment) =>
-  NtfyService.sendCommentNotification({
-    permalink: comment.permalink,
-    username: comment.author,
-  })
-);
+Leagues.forEach(runForLeague);

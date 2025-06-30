@@ -1,4 +1,3 @@
-import { ConfigUtils } from './config.utils.ts';
 import type { AppConfig } from './types/app-config.ts';
 
 export const appConfig: AppConfig = {
@@ -13,8 +12,4 @@ export const appConfig: AppConfig = {
     'UnusualBad5037',
   ],
   subreddit: 'sportsbook',
-  titles: {
-    mlb: ConfigUtils.getPostTitle('MLB'),
-    wnba: ConfigUtils.getPostTitle('WNBA'),
-  },
 };
