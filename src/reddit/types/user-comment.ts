@@ -1,4 +1,4 @@
-export interface Comment {
+export interface UserComment {
   id: string;
   subredditId: string;
   subreddit: string;
@@ -28,4 +28,9 @@ export interface Comment {
   /** Permalink to the comment */
   permalink: string;
   name: string;
+}
+
+export interface UserCommentSyncResult {
+  updated: UserComment[];
+  all: UserComment[];
 }

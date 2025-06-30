@@ -1,16 +1,17 @@
+import { config } from '@/config';
+import type { RedditComment, UserComment } from '@reddit/types';
 import { RedditMapper } from './reddit.mapper.ts';
-import type { RedditComment } from './types/reddit.ts';
 
-function processRedditComments(redditComments: RedditComment[]): Comment[] {
+function processRedditComments(redditComments: RedditComment[]): UserComment[] {
   return redditComments
     .filter((comment) => config.app.users.includes(comment.author))
     .map((comment) => RedditMapper.fromRedditComment(comment));
 }
 
 function getNewOrUpdatedComments(
-  cached: Comment[],
-  current: Comment[]
-): Comment[] {
+  cached: UserComment[],
+  current: UserComment[]
+): UserComment[] {
   const cachedMap = new Map(cached.map((c) => [c.id, c]));
 
   return current.filter((comment) => {

@@ -1,4 +1,5 @@
 import { load } from 'https://deno.land/std@0.224.0/dotenv/mod.ts';
 
-await load();
-export const env = Deno.env.toObject();
+const env = await load();
+
+export { env };

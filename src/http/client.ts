@@ -1,4 +1,4 @@
-import type { RequestInitWithQuery } from '../types/index.ts';
+import type { RequestInitWithQuery } from './types/http.ts';
 
 export class HttpClient {
   constructor(private baseUrl: string) {}
@@ -27,8 +27,6 @@ export class HttpClient {
         `HTTP error! status: ${response.status}, message: ${errorText}`
       );
     }
-
-    console.log(response);
 
     const contentType = response.headers.get('Content-Type');
     if (contentType && contentType.includes('application/json')) {

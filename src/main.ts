@@ -1,12 +1,12 @@
-import { getPostByTitle, getPostComments } from './comments/index.ts';
-import { config } from './config/index.ts';
+import { config } from '@/config';
+import { RedditService } from '@/reddit';
 
 const subreddit = config.app.subreddit;
 const title = config.app.titles.mlb;
 
-const post = await getPostByTitle(subreddit, title);
+const post = await RedditService.getPostByTitle(subreddit, title);
 
-const _comments = await getPostComments(post.permalink);
+const _comments = await RedditService.getPostComments(post.permalink);
 
 // console.log(comments);
 

@@ -1,6 +1,6 @@
-import type { RedditComment } from './types/reddit.ts';
+import type { RedditComment, UserComment } from '@reddit/types';
 
-function fromRedditComment(redditComment: RedditComment): Comment {
+function fromRedditComment(redditComment: RedditComment): UserComment {
   return {
     id: redditComment.id,
     subredditId: redditComment.subreddit_id,

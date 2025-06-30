@@ -1,26 +1,32 @@
+import { FileCache } from '@/cache';
+import { config } from '@/config';
+import type {
+  PostMeta,
+  UserComment,
+  UserCommentSyncResult,
+} from '@reddit/types';
 import { RedditClient } from './reddit.client.ts';
 import { RedditUtils } from './reddit.utils.ts';
-import type { PostMeta } from './types/post-meta.ts';
 
 async function getPostByTitle(
   subreddit = 'sportsbook',
   title: string
 ): Promise<PostMeta> {
-  const cachedPost = CacheUtils.getFromCache<PostMeta>(config.cache.posts);
+  const cachedPost = FileCache.get<PostMeta>(config.cache.posts);
 
   if (cachedPost) return cachedPost;
   const redditClient = new RedditClient();
   const post = await redditClient.fetchPostByTitle(title, subreddit);
-  CacheUtils.setCache<PostMeta>(config.cache.posts, post);
+  FileCache.set<PostMeta>(config.cache.posts, post);
 
   return post;
 }
 
 export async function getPostComments(
   permalink: string
-): Promise<{ updated: Comment[]; all: Comment[] }> {
+): Promise<UserCommentSyncResult> {
   const cachedComments =
-    CacheUtils.getFromCache<Comment[]>(config.cache.comments) ?? [];
+    FileCache.get<UserComment[]>(config.cache.comments) ?? [];
 
   const redditClient = new RedditClient();
   const redditComments = await redditClient.fetchPostComments(permalink);
@@ -30,7 +36,7 @@ export async function getPostComments(
     currentComments
   );
 
-  CacheUtils.setCache<Comment[]>(config.cache.comments, currentComments);
+  FileCache.set<UserComment[]>(config.cache.comments, currentComments);
 
   return {
     updated: updatedComments,

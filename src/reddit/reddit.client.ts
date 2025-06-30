@@ -1,9 +1,12 @@
-import type { AccessTokenResponse } from './types/access-token.ts';
+import { config } from '@/config';
+import { HttpClient } from '@/http';
 import type {
+  AccessTokenResponse,
+  PostMeta,
   RedditComment,
   RedditListing,
   RedditPost,
-} from './types/reddit.ts';
+} from '@reddit/types';
 
 export class RedditClient {
   private client: HttpClient;
@@ -30,7 +33,7 @@ export class RedditClient {
       query,
       headers,
     });
-    console.log(res);
+
     const post = res.data.children.at(0)?.data;
 
     if (!post) {

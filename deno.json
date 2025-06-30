@@ -1,7 +1,13 @@
 {
   "imports": {
     "std/": "https://deno.land/std@0.208.0/",
-    "@/": "./"
+    "@/": "./src/",
+    "@/cache": "./src/cache/index.ts",
+    "@/config": "./src/config/index.ts",
+    "@/http": "./src/http/index.ts",
+    "@/ntfy": "./src/ntfy/index.ts",
+    "@/reddit": "./src/reddit/index.ts",
+    "@reddit/types": "./src/reddit/types/index.ts"
   },
   "tasks": {
     "dev": "deno run --watch --allow-env --allow-read --allow-net --allow-write ./src/main.ts",
