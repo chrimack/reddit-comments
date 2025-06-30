@@ -1,14 +1,13 @@
-import { getAccessToken } from './auth/index.ts';
 import { getPostByTitle, getPostComments } from './comments/index.ts';
 import { config } from './config/index.ts';
-
-const token = await getAccessToken();
 
 const subreddit = config.app.subreddit;
 const title = config.app.titles.mlb;
 
-const post = await getPostByTitle(subreddit, title, token);
+const post = await getPostByTitle(subreddit, title);
 
-const comments = await getPostComments(post.permalink, token);
+const _comments = await getPostComments(post.permalink);
 
-console.log(comments);
+// console.log(comments);
+
+// sendNotification(comments.all[0].permalink);

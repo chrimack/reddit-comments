@@ -1,15 +1,16 @@
 import { config } from '../config/index.ts';
+import { RedditClient } from '../http-client/index.ts';
 import type { Comment, RedditComment } from '../types/index.ts';
 import { setCache } from '../utils/cache.ts';
 import { getFromCache, mapToComment } from '../utils/index.ts';
 
 export async function getPostComments(
-  permalink: string,
-  accessToken: string
+  permalink: string
 ): Promise<{ updated: Comment[]; all: Comment[] }> {
   const cachedComments = getFromCache<Comment[]>(config.cache.comments) ?? [];
 
-  const redditComments = await fetchPostComments(permalink, accessToken);
+  const redditClient = new RedditClient();
+  const redditComments = await redditClient.fetchPostComments(permalink);
   const currentComments = processRedditComments(redditComments);
   const updatedComments = getNewOrUpdatedComments(
     cachedComments,
@@ -22,42 +23,6 @@ export async function getPostComments(
     updated: updatedComments,
     all: currentComments,
   };
-}
-
-async function fetchPostComments(
-  permalink: string,
-  accessToken: string
-): Promise<RedditComment[]> {
-  const url = new URL(`https://oauth.reddit.com${permalink}.json`);
-  const headers = new Headers({
-    Authorization: `Bearer ${accessToken}`,
-    'User-Agent': config.userAgent,
-  });
-
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: headers,
-  });
-
-  if (!response.ok) {
-    console.error(
-      `Error fetching comments for post at ${permalink}: ${response.statusText}`
-    );
-    throw new Error(`Failed to fetch comments: ${response.statusText}`);
-  }
-
-  const json = await response.json();
-
-  const comments: RedditComment[] = [];
-  const commentListing = json[1]?.data?.children ?? [];
-
-  for (const child of commentListing) {
-    if (child.kind === 't1') {
-      comments.push(child.data);
-    }
-  }
-
-  return comments;
 }
 
 function processRedditComments(redditComments: RedditComment[]): Comment[] {

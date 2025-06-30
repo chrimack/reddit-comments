@@ -11,7 +11,7 @@ export function mapToComment(redditComment: RedditComment): Comment {
     parentId: redditComment.parent_id,
     body: redditComment.body,
     edited: redditComment.edited,
-    permalink: redditComment.link_permalink,
+    permalink: redditComment.link_permalink ?? redditComment.permalink,
     name: redditComment.name,
   };
 }
