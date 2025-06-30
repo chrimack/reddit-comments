@@ -7,5 +7,6 @@ export type {
   RedditChild,
   RedditComment,
   RedditListing,
-  RedditPost,
-} from './reddit-comment.ts';
+  RedditPost
+} from './reddit.ts';
+
