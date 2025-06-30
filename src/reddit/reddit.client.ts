@@ -1,5 +1,6 @@
 import { config } from '@/config';
 import { HttpClient } from '@/http';
+import { Logger } from '@logger';
 import type {
   AccessTokenResponse,
   PostMeta,
@@ -29,46 +30,61 @@ export class RedditClient {
     };
     const headers = await this.createHeaders();
 
-    const res = await this.client.get<RedditListing<RedditPost>>(path, {
-      query,
-      headers,
-    });
+    try {
+      const res = await this.client.get<RedditListing<RedditPost>>(path, {
+        query,
+        headers,
+      });
 
-    const post = res.data.children.at(0)?.data;
+      const post = res.data.children.at(0)?.data;
 
-    if (!post) {
-      console.error(
-        `Post with title "${title}" not found in subreddit "${subreddit}"`
-      );
-      throw new Error(
-        `Post with title "${title}" not found in subreddit "${subreddit}"`
-      );
+      if (!post) {
+        console.error(
+          `Post with title "${title}" not found in subreddit "${subreddit}"`
+        );
+        throw new Error(
+          `Post with title "${title}" not found in subreddit "${subreddit}"`
+        );
+      }
+
+      const postMeta: PostMeta = {
+        id: post.id,
+        permalink: post.permalink,
+        title: post.title,
+      };
+
+      Logger.log(`Successfully fetched post: ${JSON.stringify(postMeta)}`);
+      return postMeta;
+    } catch (error) {
+      Logger.error('Error fetching post: ', error);
+      throw error;
     }
-
-    return {
-      id: post.id,
-      permalink: post.permalink,
-      title: post.title,
-    };
   }
 
-  public async fetchPostComments(permalink: string) {
+  public async fetchPostComments(permalink: string): Promise<RedditComment[]> {
     const path = `${permalink}.json`;
 
     const headers = await this.createHeaders();
 
-    const res = await this.client.get<[unknown, RedditListing<RedditComment>]>(
-      path,
-      {
+    try {
+      const res = await this.client.get<
+        [unknown, RedditListing<RedditComment>]
+      >(path, {
         headers,
-      }
-    );
+      });
 
-    const commentListing = res?.[1]?.data.children ?? [];
+      const commentListing = res?.[1]?.data.children ?? [];
 
-    return commentListing
-      .filter((child) => child.kind === 't1') // t1 = comment
-      .map((child) => child.data);
+      const redditComments = commentListing
+        .filter((child) => child.kind === 't1') // t1 = comment
+        .map((child) => child.data);
+
+      Logger.log(`Successfully fetched ${redditComments.length} comments`);
+      return redditComments;
+    } catch (error) {
+      Logger.error(`Failed to fetch post comments for ${permalink}`);
+      throw error;
+    }
   }
 
   private async createHeaders(): Promise<Headers> {
@@ -83,17 +99,24 @@ export class RedditClient {
   private async getAccessToken(): Promise<string> {
     const now = Date.now();
     if (this.tokenCache && this.tokenCache.expiresAt > now) {
+      Logger.log('Token reused from cache');
       return this.tokenCache.token;
     }
 
-    const response = await this.fetchAccessToken();
-    const expiresAt = now + response.expires_in * 1000 - 5000; // Subtract 5 seconds for safety
-    this.tokenCache = {
-      token: response.access_token,
-      expiresAt,
-    };
+    try {
+      const response = await this.fetchAccessToken();
+      const expiresAt = now + response.expires_in * 1000 - 5000; // Subtract 5 seconds for safety
+      this.tokenCache = {
+        token: response.access_token,
+        expiresAt,
+      };
 
-    return response.access_token;
+      Logger.log('Successfully received access token');
+      return response.access_token;
+    } catch (error) {
+      Logger.error(`Error fetching access token`);
+      throw error;
+    }
   }
 
   private async fetchAccessToken(): Promise<AccessTokenResponse> {
@@ -123,7 +146,7 @@ export class RedditClient {
     });
 
     if (!response.ok) {
-      console.error(
+      Logger.error(
         `Error fetching access token: ${response.status} ${response.statusText}`
       );
       throw new Error(`Failed to fetch access token: ${response.statusText}`);

@@ -1,6 +1,7 @@
 import { FileCache } from '@/cache';
 import { config } from '@/config';
 import { LeagueUtils, type League } from '@/leagues';
+import { Logger } from '@logger';
 import type {
   PostMeta,
   UserComment,
@@ -18,10 +19,16 @@ async function getPostByTitle(
 
   if (cachedPost) return cachedPost;
   const redditClient = new RedditClient();
-  const post = await redditClient.fetchPostByTitle(title, subreddit);
-  FileCache.set<PostMeta>(config.cache.posts, post, league);
 
-  return post;
+  try {
+    const post = await redditClient.fetchPostByTitle(title, subreddit);
+    FileCache.set<PostMeta>(config.cache.posts, post, league);
+
+    return post;
+  } catch (error) {
+    Logger.error(`Failed to get posts for ${league}`, error);
+    throw error;
+  }
 }
 
 export async function getPostComments(
@@ -32,19 +39,29 @@ export async function getPostComments(
     FileCache.get<UserComment[]>(config.cache.comments, league) ?? [];
 
   const redditClient = new RedditClient();
-  const redditComments = await redditClient.fetchPostComments(permalink);
-  const currentComments = RedditUtils.processRedditComments(redditComments);
-  const updatedComments = RedditUtils.getNewOrUpdatedComments(
-    cachedComments,
-    currentComments
-  );
 
-  FileCache.set<UserComment[]>(config.cache.comments, currentComments, league);
+  try {
+    const redditComments = await redditClient.fetchPostComments(permalink);
+    const currentComments = RedditUtils.processRedditComments(redditComments);
+    const updatedComments = RedditUtils.getNewOrUpdatedComments(
+      cachedComments,
+      currentComments
+    );
 
-  return {
-    updated: updatedComments,
-    all: currentComments,
-  };
+    FileCache.set<UserComment[]>(
+      config.cache.comments,
+      currentComments,
+      league
+    );
+
+    return {
+      updated: updatedComments,
+      all: currentComments,
+    };
+  } catch (error) {
+    Logger.error(`Failed to get post comments for ${league}`);
+    throw error;
+  }
 }
 
 export const RedditService = {

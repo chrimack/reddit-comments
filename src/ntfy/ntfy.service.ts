@@ -1,3 +1,4 @@
+import { Logger } from '@logger';
 import { NtfyClient } from './ntfy.client.ts';
 import type { NtfyNotificationRequest } from './types.ts';
 
@@ -29,9 +30,9 @@ async function sendCommentNotification({
 
   try {
     await ntfyClient.sendNotification(payload);
-    console.log('Notification sent successfully');
+    Logger.log('Notification sent successfully');
   } catch (error) {
-    console.error('Error sending notification:', error);
+    Logger.error(`Error sending notification for ${username}`, error);
   }
 }
 

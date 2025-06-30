@@ -1,4 +1,5 @@
 import type { League } from '@/leagues';
+import { Logger } from '@logger';
 import { dirname } from 'https://deno.land/std/path/mod.ts';
 
 function getCacheKey(league: League): string {
@@ -7,7 +8,9 @@ function getCacheKey(league: League): string {
     today.getMonth() + 1
   }-${today.getDate()}`;
 
-  return `${date}-${league}`;
+  const key = `${date}-${league}`;
+  Logger.log(`${league} cache key: `, key);
+  return key;
 }
 
 function ensureDirForFile(filePath: string): void {
@@ -16,9 +19,16 @@ function ensureDirForFile(filePath: string): void {
     Deno.mkdirSync(dir, { recursive: true });
   } catch (err) {
     if (!(err instanceof Deno.errors.AlreadyExists)) {
-      console.error(`Failed to create cache directory ${dir}:`, err);
+      Logger.error(`Failed to create cache directory ${dir}:`, err);
     }
   }
+}
+
+function initEmptyCache<T>(filePath: string): Record<string, T> {
+  ensureDirForFile(filePath);
+  Deno.writeTextFileSync(filePath, '{}');
+  Logger.log(`Created empty cache: ${filePath}`);
+  return {};
 }
 
 function loadCache<T>(filePath: string): Record<string, T> {
@@ -26,20 +36,16 @@ function loadCache<T>(filePath: string): Record<string, T> {
     const data = Deno.readTextFileSync(filePath).trim();
 
     if (!data) {
-      ensureDirForFile(filePath);
-      Deno.writeTextFileSync(filePath, '{}');
-      return {};
+      return initEmptyCache<T>(filePath);
     }
 
     return JSON.parse(data) as Record<string, T>;
   } catch (error) {
     if (error instanceof Deno.errors.NotFound) {
-      ensureDirForFile(filePath);
-      Deno.writeTextFileSync(filePath, '{}');
-      return {};
+      return initEmptyCache<T>(filePath);
     }
 
-    console.error('Error loading post cache:', error);
+    Logger.error('Error loading post cache:', error);
     return {};
   }
 }
@@ -49,7 +55,7 @@ function saveCache<T>(filePath: string, cache: Record<string, T>): void {
     const data = JSON.stringify(cache, null, 2);
     Deno.writeTextFileSync(filePath, data);
   } catch (error) {
-    console.error('Error saving cache:', filePath, error);
+    Logger.error('Error saving cache:', filePath, error);
   }
 }
 
