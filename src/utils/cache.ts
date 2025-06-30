@@ -48,15 +48,20 @@ function saveCache<T>(filePath: string, cache: Record<string, T>): void {
   }
 }
 
-export function getFromCache<T>(filePath: string): T | null {
+function getFromCache<T>(filePath: string): T | null {
   const cache = loadCache<T>(filePath);
   const key = getTodayKey();
   return cache[key] ?? null;
 }
 
-export function setCache<T>(filePath: string, value: T): void {
+function setCache<T>(filePath: string, value: T): void {
   const cache = loadCache<T>(filePath);
   const key = getTodayKey();
   cache[key] = value;
   saveCache(filePath, cache);
 }
+
+export const CacheUtils = {
+  getFromCache,
+  setCache,
+};

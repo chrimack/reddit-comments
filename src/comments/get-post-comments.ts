@@ -1,13 +1,13 @@
 import { config } from '../config/index.ts';
 import { RedditClient } from '../http-client/index.ts';
 import type { Comment, RedditComment } from '../types/index.ts';
-import { setCache } from '../utils/cache.ts';
-import { getFromCache, mapToComment } from '../utils/index.ts';
+import { CacheUtils, mapToComment } from '../utils/index.ts';
 
 export async function getPostComments(
   permalink: string
 ): Promise<{ updated: Comment[]; all: Comment[] }> {
-  const cachedComments = getFromCache<Comment[]>(config.cache.comments) ?? [];
+  const cachedComments =
+    CacheUtils.getFromCache<Comment[]>(config.cache.comments) ?? [];
 
   const redditClient = new RedditClient();
   const redditComments = await redditClient.fetchPostComments(permalink);
@@ -17,7 +17,7 @@ export async function getPostComments(
     currentComments
   );
 
-  setCache<Comment[]>(config.cache.comments, currentComments);
+  CacheUtils.setCache<Comment[]>(config.cache.comments, currentComments);
 
   return {
     updated: updatedComments,
@@ -26,12 +26,6 @@ export async function getPostComments(
 }
 
 function processRedditComments(redditComments: RedditComment[]): Comment[] {
-  const filteredComments = redditComments.filter((comment) =>
-    config.app.users.includes(comment.author)
-  );
-
-  setCache<RedditComment[]>('./cache/reddit-comments.json', filteredComments);
-
   return redditComments
     .filter((comment) => config.app.users.includes(comment.author))
     .map((comment) => mapToComment(comment));
