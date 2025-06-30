@@ -30,7 +30,7 @@ async function sendCommentNotification({
 
   try {
     await ntfyClient.sendNotification(payload);
-    Logger.log('Notification sent successfully');
+    Logger.log(`Notification sent successfully for ${username}`);
   } catch (error) {
     Logger.error(`Error sending notification for ${username}`, error);
   }
