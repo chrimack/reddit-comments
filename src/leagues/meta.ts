@@ -14,3 +14,7 @@ export const LeagueMetaMap: Record<League, LeagueMeta> = {
 };
 
 export const Leagues = Object.keys(LeagueMetaMap) as ReadonlyArray<League>;
+
+// MLB Betting and Picks - M/D/YY (Day)
+// Pick of the Day - M/D/YY (Day)
+// WNBA Picks and Odds - M/D/YY (Day)

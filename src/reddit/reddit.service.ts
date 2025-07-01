@@ -1,70 +1,71 @@
 import { FileCache } from '@/cache';
 import { config } from '@/config';
-import { LeagueUtils, type League } from '@/leagues';
 import { Logger } from '@/logger';
 import type {
-  PostMeta,
+  RedditComment,
+  RedditListing,
   UserComment,
   UserCommentSyncResult,
 } from '@/reddit/types';
 import { RedditClient } from './reddit.client.ts';
 import { RedditUtils } from './reddit.utils.ts';
 
-async function getPostByTitle(
-  league: League,
-  subreddit = 'sportsbook'
-): Promise<PostMeta> {
-  const cachedPost = FileCache.get<PostMeta>(config.cache.posts, league);
-  const title = LeagueUtils.getPostTitle(league);
+function handleUserCommentResults(
+  results: PromiseSettledResult<RedditListing<RedditComment>>[],
+  usernames: string[]
+): UserCommentSyncResult {
+  const cached = FileCache.get<UserComment[]>(config.cache.comments) ?? [];
+  const cacheMap = new Map(cached.map((c) => [c.id, c]));
 
-  if (cachedPost) return cachedPost;
-  const redditClient = new RedditClient();
+  const updated: UserComment[] = [];
+  const all: UserComment[] = [];
 
-  try {
-    const post = await redditClient.fetchPostByTitle(title, subreddit);
-    FileCache.set<PostMeta>(config.cache.posts, post, league);
+  for (let i = 0; i < results.length; i++) {
+    const result = results[i];
+    const username = usernames[i];
 
-    return post;
-  } catch (error) {
-    Logger.error(`Failed to get posts for ${league}`, error);
-    throw error;
+    if (result.status === 'fulfilled') {
+      const listing = result.value;
+      const filtered = RedditUtils.filterCommentsBySubreddit(
+        listing,
+        config.app.subreddit
+      );
+      all.push(...filtered);
+
+      const newOrUpdated = RedditUtils.getNewOrUpdatedComments(
+        cacheMap,
+        filtered
+      );
+      updated.push(...newOrUpdated);
+    } else {
+      Logger.error(
+        `Failed to fetch comments for user: ${username}`,
+        result.reason
+      );
+    }
   }
+
+  return { all, updated };
 }
 
-export async function getPostComments(
-  permalink: string,
-  league: League
-): Promise<UserCommentSyncResult> {
-  const cachedComments =
-    FileCache.get<UserComment[]>(config.cache.comments, league) ?? [];
+async function getUserComments(): Promise<UserCommentSyncResult> {
+  const redditClient = RedditClient.getInstance();
 
-  const redditClient = new RedditClient();
+  const userCommentPromises = config.app.users.map((username) => ({
+    username,
+    promise: redditClient.getUserComments(username),
+  }));
 
-  try {
-    const redditComments = await redditClient.fetchPostComments(permalink);
-    const currentComments = RedditUtils.processRedditComments(redditComments);
-    const updatedComments = RedditUtils.getNewOrUpdatedComments(
-      cachedComments,
-      currentComments
-    );
+  const results = await Promise.allSettled(
+    userCommentPromises.map((user) => user.promise)
+  );
 
-    FileCache.set<UserComment[]>(
-      config.cache.comments,
-      currentComments,
-      league
-    );
-
-    return {
-      updated: updatedComments,
-      all: currentComments,
-    };
-  } catch (error) {
-    Logger.error(`Failed to get post comments for ${league}`);
-    throw error;
-  }
+  return handleUserCommentResults(
+    results,
+    userCommentPromises.map((user) => user.username)
+  );
 }
 
 export const RedditService = {
-  getPostByTitle,
-  getPostComments,
+  getUserComments,
 };

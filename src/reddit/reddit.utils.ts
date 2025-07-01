@@ -1,5 +1,5 @@
 import { config } from '@/config';
-import type { RedditComment, UserComment } from '@/reddit/types';
+import type { RedditComment, RedditListing, UserComment } from '@/reddit/types';
 import { RedditMapper } from './reddit.mapper.ts';
 
 function processRedditComments(redditComments: RedditComment[]): UserComment[] {
@@ -9,11 +9,9 @@ function processRedditComments(redditComments: RedditComment[]): UserComment[] {
 }
 
 function getNewOrUpdatedComments(
-  cached: UserComment[],
+  cachedMap: Map<string, UserComment>,
   current: UserComment[]
 ): UserComment[] {
-  const cachedMap = new Map(cached.map((c) => [c.id, c]));
-
   return current.filter((comment) => {
     const cachedComment = cachedMap.get(comment.id);
 
@@ -25,7 +23,18 @@ function getNewOrUpdatedComments(
   });
 }
 
+function filterCommentsBySubreddit(
+  listing: RedditListing<RedditComment>,
+  subreddit: string
+): UserComment[] {
+  return listing.data.children
+    .map((child) => child.data)
+    .filter((child) => child.subreddit.toLowerCase() === subreddit)
+    .map(RedditMapper.fromRedditComment);
+}
+
 export const RedditUtils = {
   processRedditComments,
   getNewOrUpdatedComments,
+  filterCommentsBySubreddit,
 };

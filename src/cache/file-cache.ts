@@ -1,34 +1,31 @@
-import type { League } from '@/leagues';
 import { Logger } from '@/logger';
-import { dirname } from 'https://deno.land/std/path/mod.ts';
+import { FileUtils } from './file.utils.ts';
 
-function getCacheKey(league: League): string {
-  const today = new Date();
-  const date = `${today.getFullYear()}-${
-    today.getMonth() + 1
-  }-${today.getDate()}`;
+function cleanup<T>(filePath: string) {
+  const todayKey = getCacheKey();
 
-  const key = `${date}-${league}`;
-  Logger.log(`${league} cache key: `, key);
-  return key;
-}
-
-function ensureDirForFile(filePath: string): void {
-  const dir = dirname(filePath);
   try {
-    Deno.mkdirSync(dir, { recursive: true });
-  } catch (err) {
-    if (!(err instanceof Deno.errors.AlreadyExists)) {
-      Logger.error(`Failed to create cache directory ${dir}:`, err);
+    const cache = loadCache<T>(filePath);
+
+    for (const key of Object.keys(cache)) {
+      if (key !== todayKey) {
+        delete cache[key];
+      }
     }
+
+    saveCache(filePath, cache);
+    Logger.log(`Cleaned up ${filePath}, kept: ${todayKey}`);
+  } catch (error) {
+    Logger.warn(`Failed to clean up ${filePath}`, error);
   }
 }
 
-function initEmptyCache<T>(filePath: string): Record<string, T> {
-  ensureDirForFile(filePath);
-  Deno.writeTextFileSync(filePath, '{}');
-  Logger.log(`Created empty cache: ${filePath}`);
-  return {};
+function getCacheKey(date = new Date()): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  const key = `${y}-${m}-${d}`;
+  return key;
 }
 
 function loadCache<T>(filePath: string): Record<string, T> {
@@ -36,16 +33,18 @@ function loadCache<T>(filePath: string): Record<string, T> {
     const data = Deno.readTextFileSync(filePath).trim();
 
     if (!data) {
-      return initEmptyCache<T>(filePath);
+      FileUtils.initEmptyFile(filePath);
+      return {};
     }
 
     return JSON.parse(data) as Record<string, T>;
   } catch (error) {
     if (error instanceof Deno.errors.NotFound) {
-      return initEmptyCache<T>(filePath);
+      FileUtils.initEmptyFile(filePath);
+      return {};
     }
 
-    Logger.error('Error loading post cache:', error);
+    Logger.error('Error loading cache:', error);
     return {};
   }
 }
@@ -59,20 +58,21 @@ function saveCache<T>(filePath: string, cache: Record<string, T>): void {
   }
 }
 
-function get<T>(filePath: string, league: League): T | null {
+function get<T>(filePath: string): T | null {
   const cache = loadCache<T>(filePath);
-  const key = getCacheKey(league);
+  const key = getCacheKey();
   return cache[key] ?? null;
 }
 
-function set<T>(filePath: string, value: T, league: League): void {
+function set<T>(filePath: string, value: T): void {
   const cache = loadCache<T>(filePath);
-  const key = getCacheKey(league);
+  const key = getCacheKey();
   cache[key] = value;
   saveCache(filePath, cache);
 }
 
 export const FileCache = {
+  cleanup,
   get,
   set,
 };
