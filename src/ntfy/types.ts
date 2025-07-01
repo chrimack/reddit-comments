@@ -12,6 +12,7 @@ export interface NtfyNotificationPayload {
   priority?: number;
   tags?: string[];
   actions?: NtfyAction[];
+  click?: string;
 }
 
 export interface NtfyNotificationRequest {

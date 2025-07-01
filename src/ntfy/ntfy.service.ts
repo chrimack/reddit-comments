@@ -1,6 +1,9 @@
 import { Logger } from '@/logger';
 import { NtfyClient } from './ntfy.client.ts';
-import type { NtfyNotificationRequest } from './types.ts';
+import type {
+  NtfyNotificationPayload,
+  NtfyNotificationRequest,
+} from './types.ts';
 
 const TOPIC = 'reddit-watcher-swapping-carnation5-stability';
 const REDDIT_BASE_URLS = ['https://www.reddit.com', 'https://reddit.com'];
@@ -25,18 +28,12 @@ async function sendCommentNotification({
 
   const message = `New or edited comment by ${username}`;
 
-  const payload = {
+  const payload: NtfyNotificationPayload = {
     topic: TOPIC,
     message,
-    title: 'Reddit Watcher',
-    actions: [
-      {
-        action: 'view',
-        label: 'View Comment',
-        url,
-        clear: true,
-      },
-    ],
+    title: 'Check it out...',
+    click: url,
+    tags: ['speech_balloon'],
   };
 
   try {
@@ -47,4 +44,23 @@ async function sendCommentNotification({
   }
 }
 
-export const NtfyService = { sendCommentNotification };
+async function sendErrorNotification(message: string) {
+  const payload: NtfyNotificationPayload = {
+    topic: TOPIC,
+    message,
+    title: 'There was an error...',
+    tags: ['warning'],
+  };
+
+  try {
+    await ntfyClient.sendNotification(payload);
+    Logger.log(`Error notifications sent: ${message}`);
+  } catch (error) {
+    Logger.error(`Failed to send error notification`, error);
+  }
+}
+
+export const NtfyService = {
+  sendCommentNotification,
+  sendErrorNotification,
+};
