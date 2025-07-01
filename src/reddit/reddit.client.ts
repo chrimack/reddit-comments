@@ -12,6 +12,7 @@ export class RedditClient {
   private static instance: RedditClient;
   private client: HttpClient;
   private tokenCache: { token: string; expiresAt: number } | null = null;
+  private inflightTokenPromise: Promise<string> | null = null;
 
   constructor() {
     this.client = new HttpClient('https://oauth.reddit.com');
@@ -20,6 +21,10 @@ export class RedditClient {
   public static getInstance(): RedditClient {
     if (!RedditClient.instance) RedditClient.instance = new RedditClient();
     return RedditClient.instance;
+  }
+
+  public async init(): Promise<void> {
+    await this.getAccessToken();
   }
 
   public async searchPosts(
@@ -70,20 +75,31 @@ export class RedditClient {
       return this.tokenCache.token;
     }
 
-    try {
-      const response = await this.fetchAccessToken();
-      const expiresAt = now + response.expires_in * 1000 - 5000; // Subtract 5 seconds for safety
-      this.tokenCache = {
-        token: response.access_token,
-        expiresAt,
-      };
-
-      Logger.log('Successfully received access token');
-      return response.access_token;
-    } catch (error) {
-      Logger.error(`Error fetching access token`);
-      throw error;
+    if (this.inflightTokenPromise) {
+      Logger.log('Token fetch already in progress, awaiting result');
+      return await this.inflightTokenPromise;
     }
+
+    this.inflightTokenPromise = this.fetchAccessToken()
+      .then((response) => {
+        const expiresAt = now + response.expires_in * 1000 - 5000; // Subtract 5 seconds for safety
+        this.tokenCache = {
+          token: response.access_token,
+          expiresAt,
+        };
+
+        Logger.log('Successfully received access token');
+        return response.access_token;
+      })
+      .catch((error) => {
+        Logger.error(`Error fetching access token`);
+        throw error;
+      })
+      .finally(() => {
+        this.inflightTokenPromise = null;
+      });
+
+    return await this.inflightTokenPromise;
   }
 
   private async fetchAccessToken(): Promise<AccessTokenResponse> {
@@ -103,7 +119,7 @@ export class RedditClient {
       grant_type: 'password',
       username,
       password,
-      scope: 'read',
+      scope: 'read history',
     });
 
     const response = await fetch(url, {
@@ -122,73 +138,3 @@ export class RedditClient {
     return response.json();
   }
 }
-
-// async function fetchPostByTitle(
-//   title: string,
-//   subreddit = 'sportsbook'
-// ): Promise<PostMeta> {
-//   const path = `/r/${subreddit}/search`;
-//   const query = {
-//     q: title,
-//     restrict_sr: 'true',
-//     sort: 'new',
-//     limit: '1',
-//   };
-//   const headers = await this.createHeaders();
-
-//   try {
-//     const res = await this.client.get<RedditListing<RedditPost>>(path, {
-//       query,
-//       headers,
-//     });
-
-//     const post = res.data.children.at(0)?.data;
-
-//     if (!post) {
-//       console.error(
-//         `Post with title "${title}" not found in subreddit "${subreddit}"`
-//       );
-//       throw new Error(
-//         `Post with title "${title}" not found in subreddit "${subreddit}"`
-//       );
-//     }
-
-//     const postMeta: PostMeta = {
-//       id: post.id,
-//       permalink: post.permalink,
-//       title: post.title,
-//     };
-
-//     Logger.log(`Successfully fetched post: ${JSON.stringify(postMeta)}`);
-//     return postMeta;
-//   } catch (error) {
-//     Logger.error('Error fetching post: ', error);
-//     throw error;
-//   }
-// }
-
-// public async fetchPostComments(permalink: string): Promise<RedditComment[]> {
-//   const path = `${permalink}.json`;
-
-//   const headers = await this.createHeaders();
-
-//   try {
-//     const res = await this.client.get<
-//       [unknown, RedditListing<RedditComment>]
-//     >(path, {
-//       headers,
-//     });
-
-//     const commentListing = res?.[1]?.data.children ?? [];
-
-//     const redditComments = commentListing
-//       .filter((child) => child.kind === 't1') // t1 = comment
-//       .map((child) => child.data);
-
-//     Logger.log(`Successfully fetched ${redditComments.length} comments`);
-//     return redditComments;
-//   } catch (error) {
-//     Logger.error(`Failed to fetch post comments for ${permalink}`);
-//     throw error;
-//   }
-// }

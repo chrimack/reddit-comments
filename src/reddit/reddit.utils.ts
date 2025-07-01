@@ -23,18 +23,39 @@ function getNewOrUpdatedComments(
   });
 }
 
-function filterCommentsBySubreddit(
+function getDateInfo(): string {
+  const date = new Date();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const year = date.getFullYear().toString().slice(-2);
+  const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
+  return `${month}/${day}/${year} (${weekday})`;
+}
+
+function getTodayTopLevelComments(
   listing: RedditListing<RedditComment>,
   subreddit: string
 ): UserComment[] {
-  return listing.data.children
+  const redditComments = listing.data.children
     .map((child) => child.data)
-    .filter((child) => child.subreddit.toLowerCase() === subreddit)
-    .map(RedditMapper.fromRedditComment);
+    .filter(
+      (child) =>
+        child.subreddit.toLowerCase() === subreddit && // only get comments from r/sportsbook
+        child.link_title.includes(getDateInfo()) && // only get coments from today's posts
+        child.parent_id.startsWith('t3') // only get top-level comments
+    );
+
+  // for debugging
+  // FileCache.set<RedditComment[]>(
+  //   './cache/reddit-comments.json',
+  //   redditComments
+  // );
+
+  return redditComments.map(RedditMapper.fromRedditComment);
 }
 
 export const RedditUtils = {
   processRedditComments,
   getNewOrUpdatedComments,
-  filterCommentsBySubreddit,
+  getTodayTopLevelComments,
 };

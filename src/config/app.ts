@@ -10,6 +10,7 @@ export const appConfig: AppConfig = {
     'Romans828Believer',
     'Skipperdees_ears',
     'UnusualBad5037',
+    'PurpleDragonBets',
   ],
   subreddit: 'sportsbook',
 };

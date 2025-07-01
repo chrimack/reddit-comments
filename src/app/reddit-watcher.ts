@@ -10,15 +10,21 @@ async function monitorUserComments() {
   if (isRunning) return;
   isRunning = true;
 
+  await RedditService.init();
+
   try {
     const comments = await RedditService.getUserComments();
 
-    comments.updated.forEach((comment) =>
-      NtfyService.sendCommentNotification({
-        permalink: comment.permalink,
-        username: comment.author,
-      })
+    await Promise.allSettled(
+      comments.updated.map((comment) =>
+        NtfyService.sendCommentNotification({
+          permalink: comment.permalink,
+          username: comment.author,
+        })
+      )
     );
+
+    Logger.log('Successfully finished polling user comments');
   } catch (error) {
     Logger.error(`Failed to run watcher`, error);
   } finally {

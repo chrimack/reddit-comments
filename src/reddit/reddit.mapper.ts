@@ -11,7 +11,7 @@ function fromRedditComment(redditComment: RedditComment): UserComment {
     parentId: redditComment.parent_id,
     body: redditComment.body,
     edited: redditComment.edited,
-    permalink: redditComment.link_permalink ?? redditComment.permalink,
+    permalink: redditComment.permalink,
     name: redditComment.name,
   };
 }

@@ -26,7 +26,7 @@ function handleUserCommentResults(
 
     if (result.status === 'fulfilled') {
       const listing = result.value;
-      const filtered = RedditUtils.filterCommentsBySubreddit(
+      const filtered = RedditUtils.getTodayTopLevelComments(
         listing,
         config.app.subreddit
       );
@@ -37,6 +37,8 @@ function handleUserCommentResults(
         filtered
       );
       updated.push(...newOrUpdated);
+
+      Logger.log(`Comments processed for: ${username}`);
     } else {
       Logger.error(
         `Failed to fetch comments for user: ${username}`,
@@ -44,6 +46,8 @@ function handleUserCommentResults(
       );
     }
   }
+
+  FileCache.set<UserComment[]>(config.cache.comments, all);
 
   return { all, updated };
 }
@@ -66,6 +70,12 @@ async function getUserComments(): Promise<UserCommentSyncResult> {
   );
 }
 
+async function init(): Promise<void> {
+  await RedditClient.getInstance().init();
+  Logger.log(`${RedditClient.name} successfully initialized`);
+}
+
 export const RedditService = {
   getUserComments,
+  init,
 };

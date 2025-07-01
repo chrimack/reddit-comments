@@ -3,15 +3,26 @@ import { NtfyClient } from './ntfy.client.ts';
 import type { NtfyNotificationRequest } from './types.ts';
 
 const TOPIC = 'reddit-watcher-swapping-carnation5-stability';
-const REDDIT_BASE_URL = 'https://reddit.com';
+const REDDIT_BASE_URLS = ['https://www.reddit.com', 'https://reddit.com'];
 
 const ntfyClient = new NtfyClient();
+
+function getUrl(permalink: string) {
+  const includesDomain = REDDIT_BASE_URLS.some((url) =>
+    permalink.includes(url)
+  );
+
+  return includesDomain ? permalink : `${REDDIT_BASE_URLS[0]}${permalink}`;
+}
 
 async function sendCommentNotification({
   permalink,
   username,
 }: NtfyNotificationRequest): Promise<void> {
-  const url = `${REDDIT_BASE_URL}${permalink}`;
+  const url = getUrl(permalink);
+
+  Logger.log(`username: ${username}, permalink: ${permalink}`);
+
   const message = `New or edited comment by ${username}`;
 
   const payload = {
