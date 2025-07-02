@@ -6,7 +6,6 @@
     "@/cache": "./src/cache/index.ts",
     "@/config": "./src/config/index.ts",
     "@/http": "./src/http/index.ts",
-    "@/leagues": "./src/leagues/index.ts",
     "@/logger": "./src/logger/index.ts",
     "@/ntfy": "./src/ntfy/index.ts",
     "@/reddit": "./src/reddit/index.ts",
