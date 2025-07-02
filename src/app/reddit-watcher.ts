@@ -1,4 +1,4 @@
-import { Cleanup, FileCache } from '@/cache';
+import { CleanupManager, FileCache } from '@/cache';
 import { config } from '@/config';
 import { Logger } from '@/logger';
 import { NtfyService } from '@/ntfy';
@@ -52,11 +52,12 @@ export function startRedditWatcher(): void {
 
   Logger.log(`Starting Reddit Watcher polling...`);
 
-  if (Cleanup.shouldRunCleanup()) {
+  const cleanup = new CleanupManager();
+  if (cleanup.shouldRunCleanup()) {
     Object.values(config.cache).forEach((filePath: string) =>
       FileCache.cleanup(filePath)
     );
-    Cleanup.markCleanupRan();
+    cleanup.markCleanupRan();
   }
 
   monitorUserComments();
