@@ -45,12 +45,6 @@ function getTodayTopLevelComments(
         child.parent_id.startsWith('t3') // only get top-level comments
     );
 
-  // for debugging
-  // FileCache.set<RedditComment[]>(
-  //   './cache/reddit-comments.json',
-  //   redditComments
-  // );
-
   return redditComments.map(RedditMapper.fromRedditComment);
 }
 

@@ -1,4 +1,4 @@
-import { FileCache } from '@/cache';
+import { CacheManager } from '@/cache';
 import { config } from '@/config';
 import { Logger } from '@/logger';
 import type {
@@ -14,7 +14,8 @@ function handleUserCommentResults(
   results: PromiseSettledResult<RedditListing<RedditComment>>[],
   usernames: string[]
 ): UserCommentSyncResult {
-  const cached = FileCache.get<UserComment[]>(config.cache.comments) ?? [];
+  const cacheManager = new CacheManager<UserComment[]>(config.cache.comments);
+  const cached = cacheManager.get() ?? [];
   const cacheMap = new Map(cached.map((c) => [c.id, c]));
 
   const updated: UserComment[] = [];
@@ -51,7 +52,7 @@ function handleUserCommentResults(
     }
   }
 
-  FileCache.set<UserComment[]>(config.cache.comments, all);
+  cacheManager.set(all);
 
   return {
     all,
