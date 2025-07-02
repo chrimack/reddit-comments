@@ -28,6 +28,7 @@ async function monitorUserComments() {
     );
 
     Logger.log('Successfully finished polling user comments');
+    Logger.flushLogsToFile();
   } catch (error) {
     errorCount++;
     Logger.error(`Failed to run watcher`, error);
