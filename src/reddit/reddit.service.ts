@@ -19,6 +19,8 @@ function handleUserCommentResults(
 
   const updated: UserComment[] = [];
   const all: UserComment[] = [];
+  let success = 0;
+  let failed = 0;
 
   for (let i = 0; i < results.length; i++) {
     const result = results[i];
@@ -38,8 +40,10 @@ function handleUserCommentResults(
       );
       updated.push(...newOrUpdated);
 
-      Logger.log(`Comments processed for: ${username}`);
+      success++;
+      Logger.log(`Fetched and diffed comments for: ${username}`);
     } else {
+      failed++;
       Logger.error(
         `Failed to fetch comments for user: ${username}`,
         result.reason
@@ -49,7 +53,11 @@ function handleUserCommentResults(
 
   FileCache.set<UserComment[]>(config.cache.comments, all);
 
-  return { all, updated };
+  return {
+    all,
+    updated,
+    stats: { failed, success },
+  };
 }
 
 async function getUserComments(): Promise<UserCommentSyncResult> {

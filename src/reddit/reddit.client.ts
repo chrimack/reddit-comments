@@ -71,7 +71,6 @@ export class RedditClient {
   private async getAccessToken(): Promise<string> {
     const now = Date.now();
     if (this.tokenCache && this.tokenCache.expiresAt > now) {
-      Logger.log('Token reused from cache');
       return this.tokenCache.token;
     }
 

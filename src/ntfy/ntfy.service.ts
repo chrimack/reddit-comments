@@ -1,4 +1,5 @@
-import { Logger } from '@/logger';
+import { Logger, type OperationStats } from '@/logger';
+import type { UserComment } from '@/reddit/types';
 import { NtfyClient } from './ntfy.client.ts';
 import type {
   NtfyNotificationPayload,
@@ -44,6 +45,27 @@ async function sendCommentNotification({
   }
 }
 
+async function sendNotifications(
+  userComments: UserComment[]
+): Promise<OperationStats> {
+  const results = await Promise.allSettled(
+    userComments.map((comment) =>
+      NtfyService.sendCommentNotification({
+        permalink: comment.permalink,
+        username: comment.author,
+      })
+    )
+  );
+
+  return results.reduce(
+    (acc, result) => {
+      result.status === 'fulfilled' ? acc.success++ : acc.failed++;
+      return acc;
+    },
+    { success: 0, failed: 0 }
+  );
+}
+
 async function sendErrorNotification(message: string) {
   const payload: NtfyNotificationPayload = {
     topic: TOPIC,
@@ -63,4 +85,5 @@ async function sendErrorNotification(message: string) {
 export const NtfyService = {
   sendCommentNotification,
   sendErrorNotification,
+  sendNotifications,
 };

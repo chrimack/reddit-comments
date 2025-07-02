@@ -1,3 +1,5 @@
+import type { OperationStats } from '@/logger';
+
 export interface UserComment {
   id: string;
   subredditId: string;
@@ -33,4 +35,5 @@ export interface UserComment {
 export interface UserCommentSyncResult {
   updated: UserComment[];
   all: UserComment[];
+  stats: OperationStats;
 }

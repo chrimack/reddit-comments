@@ -10,6 +10,8 @@ let errorCount = 0;
 const MAX_ERRORS = 3;
 
 async function monitorUserComments() {
+  const startTime = Date.now();
+
   if (isRunning) return;
   isRunning = true;
 
@@ -17,18 +19,12 @@ async function monitorUserComments() {
 
   try {
     const comments = await RedditService.getUserComments();
-
-    await Promise.allSettled(
-      comments.updated.map((comment) =>
-        NtfyService.sendCommentNotification({
-          permalink: comment.permalink,
-          username: comment.author,
-        })
-      )
+    const notificationStats = await NtfyService.sendNotifications(
+      comments.updated
     );
 
-    Logger.log('Successfully finished polling user comments');
-    Logger.flushLogsToFile();
+    Logger.logSummary(comments.stats, notificationStats, startTime);
+    await Logger.flush();
   } catch (error) {
     errorCount++;
     Logger.error(`Failed to run watcher`, error);
@@ -41,6 +37,9 @@ async function monitorUserComments() {
       await NtfyService.sendErrorNotification(
         `Max error limit reached: ${errorCount}, shutting down...`
       );
+
+      const durationMs = Date.now() - startTime;
+      Logger.log(`Polling complete in ${durationMs / 1000}s`);
       Deno.exit(1);
     }
   } finally {
