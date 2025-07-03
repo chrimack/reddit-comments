@@ -1,68 +1,101 @@
-// import { assertStringIncludes } from 'jsr:@std/assert';
-// import { Logger } from './logger.ts';
+import { DateUtils } from '@/utils';
+import { assertMatch, assertStringIncludes } from 'jsr:@std/assert';
+import { Logger } from './logger.ts';
 
-// // Helper to capture console output
-// function captureConsole(method: 'log' | 'warn' | 'error', fn: () => void) {
-//   const original = console[method];
-//   let output = '';
-//   console[method] = (...args: unknown[]) => {
-//     output += args.map(String).join(' ') + '\n';
-//   };
-//   try {
-//     fn();
-//   } finally {
-//     console[method] = original;
-//   }
-//   return output;
-// }
+const originalConsole = {
+  log: console.log,
+  warn: console.warn,
+  error: console.error,
+};
 
-// Deno.test('Logger.log writes to console and buffer', () => {
-//   const msg = 'info message';
-//   const output = captureConsole('log', () => Logger.log(msg, 123));
-//   assertStringIncludes(output, msg);
-//   assertStringIncludes(output, 'INFO');
-// });
+function mockConsole() {
+  (console.log = () => {}),
+    (console.warn = () => {}),
+    (console.error = () => {});
+}
 
-// Deno.test('Logger.warn writes to console and buffer', () => {
-//   const msg = 'warn message';
-//   const output = captureConsole('warn', () => Logger.warn(msg, 'extra'));
-//   assertStringIncludes(output, msg);
-//   assertStringIncludes(output, 'WARN');
-// });
+function restoreConsole() {
+  console.log = originalConsole.log;
+  console.warn = originalConsole.warn;
+  console.error = originalConsole.error;
+}
 
-// Deno.test('Logger.error writes to console and buffer', () => {
-//   const msg = 'error message';
-//   const output = captureConsole('error', () => Logger.error(msg, { foo: 1 }));
-//   assertStringIncludes(output, msg);
-//   assertStringIncludes(output, 'ERROR');
-// });
+Deno.test('Logger.log() formats and buffers an INFO message', () => {
+  mockConsole();
 
-// Deno.test('Logger.logSummary logs summary info', () => {
-//   const userStats = { success: 2, failed: 1 };
-//   const notifStats = { success: 3, failed: 0 };
-//   const start = Date.now() - 5000;
-//   let output = '';
-//   const origLog = Logger.log;
-//   Logger.log = (msg: string) => {
-//     output += msg + '\n';
-//   };
-//   try {
-//     Logger.logSummary(userStats, notifStats, start);
-//     assertStringIncludes(output, 'Finished polling 3 users, 1 failed');
-//     assertStringIncludes(output, 'Notifications sent: 3 successful, 0 failed');
-//     assertStringIncludes(output, 'Polling complete in');
-//   } finally {
-//     Logger.log = origLog;
-//   }
-// });
+  const logger = Logger.getInstance();
+  logger['logBuffer'] = [];
 
-// Deno.test('Logger.flush writes logs to file and clears buffer', async () => {
-//   // Write a log to ensure buffer is not empty
-//   Logger.log('flush test');
-//   await Logger.flush();
-//   // Check that the log file exists and contains the log
-//   const date = new Date().toISOString().split('T')[0];
-//   const filePath = `./logs/${date}.txt`;
-//   const data = await Deno.readTextFile(filePath);
-//   assertStringIncludes(data, 'flush test');
-// });
+  logger.log('Test message', 123);
+
+  const [lastLog] = logger['logBuffer'].slice(-1);
+  assertMatch(
+    lastLog,
+    /^\[INFO\]\s{2}\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2} — Test message 123$/
+  );
+
+  restoreConsole();
+});
+
+Deno.test('Logger.warn formats and buffers a WARN message', () => {
+  mockConsole();
+
+  const logger = Logger.getInstance();
+  logger['logBuffer'] = [];
+
+  logger.warn('Something might be wrong');
+
+  const [lastLog] = logger['logBuffer'].slice(-1);
+  assertMatch(
+    lastLog,
+    /^\[WARN\]\s{2}\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2} — .../
+  );
+
+  restoreConsole();
+});
+
+Deno.test('Logger.error formats and buffers an ERROR message', () => {
+  mockConsole();
+
+  const logger = Logger.getInstance();
+  logger['logBuffer'] = [];
+
+  logger.error('Something went wrong', { code: 500 });
+
+  const [lastLog] = logger['logBuffer'].slice(-1);
+  assertMatch(
+    lastLog,
+    /^\[ERROR\] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2} — Something went wrong \[object Object\]$/
+  );
+
+  restoreConsole();
+});
+
+Deno.test('Logger.flush writes logs to the expected file', async () => {
+  mockConsole();
+
+  const logger = Logger.getInstance();
+  logger['logBuffer'] = [];
+
+  const tempLogPath = './logs/test-log.txt';
+
+  // Temporarily override the file path logic
+  const originalDate = DateUtils.getTodayDateString;
+  DateUtils.getTodayDateString = () => 'test-log';
+  const originalTimestamp = DateUtils.getLocalTimestamp;
+  DateUtils.getLocalTimestamp = () => '2025-07-03T12:00:00';
+
+  logger.log('Flush this message');
+
+  await logger.flush();
+
+  const fileContent = await Deno.readTextFile(tempLogPath);
+  assertStringIncludes(fileContent, 'Flush this message');
+
+  // Cleanup
+  await Deno.remove(tempLogPath);
+  DateUtils.getTodayDateString = originalDate;
+  DateUtils.getLocalTimestamp = originalTimestamp;
+
+  restoreConsole();
+});
