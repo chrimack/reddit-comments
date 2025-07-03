@@ -11,10 +11,16 @@ import { RedditClient } from './reddit.client.ts';
 import { RedditUtils } from './reddit.utils.ts';
 
 export class RedditService {
-  private logger = Logger.getInstance();
+  private redditClient: RedditClient;
+  private logger: Logger;
+
+  constructor(redditClient?: RedditClient, logger?: Logger) {
+    this.redditClient = redditClient ?? RedditClient.getInstance();
+    this.logger = logger ?? Logger.getInstance();
+  }
 
   public async init(): Promise<void> {
-    await RedditClient.getInstance().init();
+    await this.redditClient.init();
     this.logger.log(`${RedditClient.name} successfully initialized`);
   }
 
@@ -70,11 +76,9 @@ export class RedditService {
   }
 
   public async getUserComments(): Promise<UserCommentSyncResult> {
-    const redditClient = RedditClient.getInstance();
-
     const userCommentPromises = config.app.users.map((username) => ({
       username,
-      promise: redditClient.getUserComments(username),
+      promise: this.redditClient.getUserComments(username),
     }));
 
     const results = await Promise.allSettled(

@@ -11,13 +11,14 @@ import type {
 export class RedditClient {
   private static instance: RedditClient;
   private client: HttpClient;
-  private logger = Logger.getInstance();
+  private logger: Logger;
 
   private tokenCache: { token: string; expiresAt: number } | null = null;
   private inflightTokenPromise: Promise<string> | null = null;
 
-  constructor() {
-    this.client = new HttpClient('https://oauth.reddit.com');
+  private constructor(httpClient?: HttpClient, logger?: Logger) {
+    this.client = httpClient ?? new HttpClient('https://oauth.reddit.com');
+    this.logger = logger ?? Logger.getInstance();
   }
 
   public static getInstance(): RedditClient {

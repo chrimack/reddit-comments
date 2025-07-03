@@ -6,14 +6,19 @@ import type {
 } from './types.ts';
 
 export class NtfyService {
-  private ntfyClient = new NtfyClient();
-  private logger = Logger.getInstance();
+  private ntfyClient: NtfyClient;
+  private logger: Logger;
 
   private readonly topic = 'reddit-watcher-swapping-carnation5-stability';
   private readonly redditBaseUrls = [
     'https://www.reddit.com',
     'https://reddit.com',
   ];
+
+  constructor(ntfyClient?: NtfyClient, logger?: Logger) {
+    this.ntfyClient = ntfyClient ?? new NtfyClient();
+    this.logger = logger ?? Logger.getInstance();
+  }
 
   private getUrl(permalink: string) {
     const includesDomain = this.redditBaseUrls.some((url) =>

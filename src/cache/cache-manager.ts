@@ -3,9 +3,11 @@ import { DateUtils } from '@/utils';
 import { FileUtils } from './file.utils.ts';
 
 export class CacheManager<T = unknown> {
-  private logger = Logger.getInstance();
+  private logger: Logger;
 
-  constructor(private filePath: string) {}
+  constructor(private filePath: string, logger?: Logger) {
+    this.logger = logger ?? Logger.getInstance();
+  }
 
   private getCacheKey(date = new Date()): string {
     return DateUtils.formatDate(date);
