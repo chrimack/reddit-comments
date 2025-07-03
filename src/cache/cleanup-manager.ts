@@ -1,4 +1,5 @@
 import { Logger } from '@/logger';
+import { DateUtils } from '@/utils';
 import { FileUtils } from './file.utils.ts';
 
 export class CleanupManager {
@@ -6,12 +7,8 @@ export class CleanupManager {
   private lastCleanUpDay: string | null = null;
   constructor(private lockFilePath = './cache/.cleanup.lock') {}
 
-  private getDateStamp() {
-    return new Date().toISOString().split('T')[0];
-  }
-
   public shouldRunCleanup() {
-    const today = this.getDateStamp();
+    const today = DateUtils.getTodayDateString();
 
     if (this.lastCleanUpDay === today) return false;
 
@@ -38,7 +35,7 @@ export class CleanupManager {
   }
 
   public markCleanupRan(): void {
-    const today = this.getDateStamp();
+    const today = DateUtils.getTodayDateString();
     FileUtils.ensureDirForFile(this.lockFilePath);
     Deno.writeTextFileSync(this.lockFilePath, today);
   }

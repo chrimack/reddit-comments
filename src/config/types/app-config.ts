@@ -4,4 +4,14 @@ export interface AppConfig {
 
   /** Subreddit to search */
   subreddit: string;
+
+  /**
+   * Defines the local time window (in 24-hour format)
+   * during which the app is allowed to run
+   * */
+  timeWindow: {
+    startHour: number;
+    endHour: number;
+  };
+  timeZone: string;
 }

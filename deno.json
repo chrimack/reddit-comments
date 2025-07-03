@@ -9,7 +9,8 @@
     "@/logger": "./src/logger/index.ts",
     "@/ntfy": "./src/ntfy/index.ts",
     "@/reddit": "./src/reddit/index.ts",
-    "@/reddit/types": "./src/reddit/types/index.ts"
+    "@/reddit/types": "./src/reddit/types/index.ts",
+    "@/utils": "./src/utils/index.ts"
   },
   "tasks": {
     "dev": "deno run --watch --allow-env --allow-read --allow-net --allow-write ./src/main.ts",

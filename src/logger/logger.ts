@@ -1,3 +1,4 @@
+import { DateUtils } from '@/utils';
 import * as path from 'https://deno.land/std/path/mod.ts';
 import type { OperationStats } from './types.ts';
 
@@ -12,15 +13,13 @@ export class Logger {
     return this.instance;
   }
 
-  private getISOTimestamp = () => new Date().toISOString();
-
   private formatLogLine(
     level: 'INFO' | 'WARN' | 'ERROR',
     message: string,
     ...args: unknown[]
   ) {
     const pad = level === 'ERROR' ? '' : ' ';
-    return `[${level}]${pad} ${this.getISOTimestamp()} — ${message} ${args
+    return `[${level}]${pad} ${DateUtils.getLocalTimestamp()} — ${message} ${args
       .map(String)
       .join(' ')}`;
   }
@@ -62,13 +61,14 @@ export class Logger {
 
   public async flush(): Promise<void> {
     if (this.logBuffer.length === 0) return;
-    const date = this.getISOTimestamp().split('T')[0];
-    const filePath = `./logs/${date}.txt`;
+    const date = DateUtils.getTodayDateString();
+    const timestamp = DateUtils.getLocalTimestamp();
 
+    const filePath = `./logs/${date}.txt`;
     const dir = path.dirname(filePath);
     await Deno.mkdir(dir, { recursive: true });
 
-    const separator = `\n----- Log batch flush at ${this.getISOTimestamp()} -----\n`;
+    const separator = `\n----- Log batch flush at ${timestamp} -----\n`;
     const data = separator + this.logBuffer.join('\n') + '\n';
 
     try {

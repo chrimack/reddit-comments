@@ -13,4 +13,9 @@ export const appConfig: AppConfig = {
     'PurpleDragonBets',
   ],
   subreddit: 'sportsbook',
+  timeWindow: {
+    startHour: 6,
+    endHour: 22,
+  },
+  timeZone: 'America/New_York',
 };

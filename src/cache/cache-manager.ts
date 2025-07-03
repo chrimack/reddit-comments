@@ -1,4 +1,5 @@
 import { Logger } from '@/logger';
+import { DateUtils } from '@/utils';
 import { FileUtils } from './file.utils.ts';
 
 export class CacheManager<T = unknown> {
@@ -7,10 +8,7 @@ export class CacheManager<T = unknown> {
   constructor(private filePath: string) {}
 
   private getCacheKey(date = new Date()): string {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
+    return DateUtils.formatDate(date);
   }
 
   private loadCache(): Record<string, T> {

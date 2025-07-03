@@ -1,5 +1,7 @@
 import { Logger } from '@/logger';
 
+import { config } from '@/config';
+import { DateUtils } from '@/utils';
 import { cron } from 'https://deno.land/x/deno_cron/cron.ts';
 
 export function runNowAndSchedule(
@@ -12,15 +14,8 @@ export function runNowAndSchedule(
 }
 
 export function isWithinTimeWindow(): boolean {
-  const easternTimeZone = 'America/New_York';
-  const now = new Date();
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    hour: 'numeric',
-    hour12: false,
-    timeZone: easternTimeZone,
-  });
+  const hour = DateUtils.getLocalHour();
 
-  const hour = Number(formatter.format(now));
-
-  return hour >= 7 && hour <= 20;
+  const { startHour, endHour } = config.app.timeWindow;
+  return hour >= startHour && hour <= endHour;
 }
