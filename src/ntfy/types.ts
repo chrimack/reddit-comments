@@ -17,4 +17,7 @@ export interface NtfyNotificationPayload {
   click?: string;
 }
 
-export type NtfyNotificationRequest = Pick<UserComment, 'author' | 'permalink'>;
+export type NtfyNotificationRequest = Pick<
+  UserComment,
+  'author' | 'permalink'
+> & { message: string; tag?: string };

@@ -33,7 +33,8 @@ export interface UserComment {
 }
 
 export interface UserCommentSyncResult {
-  updated: UserComment[];
   all: UserComment[];
+  new: UserComment[];
+  updated: UserComment[];
   stats: OperationStats;
 }

@@ -32,6 +32,7 @@ export class RedditService {
     const cached = cacheManager.get() ?? [];
     const cacheMap = new Map(cached.map((c) => [c.id, c]));
 
+    const newComments: UserComment[] = [];
     const updated: UserComment[] = [];
     const all: UserComment[] = [];
     let success = 0;
@@ -49,11 +50,10 @@ export class RedditService {
         );
         all.push(...filtered);
 
-        const newOrUpdated = RedditUtils.getNewOrUpdatedComments(
-          cacheMap,
-          filtered
-        );
-        updated.push(...newOrUpdated);
+        const { new: currentNew, updated: currentUpdated } =
+          RedditUtils.getNewAndUpdatedComments(cacheMap, filtered);
+        newComments.push(...currentNew);
+        updated.push(...currentUpdated);
 
         success++;
         this.logger.log(`Fetched and diffed comments for: ${username}`);
@@ -70,6 +70,7 @@ export class RedditService {
 
     return {
       all,
+      new: newComments,
       updated,
       stats: { failed, success },
     };

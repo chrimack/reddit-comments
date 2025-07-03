@@ -9,19 +9,40 @@ function processRedditComments(redditComments: RedditComment[]): UserComment[] {
     .map((comment) => RedditMapper.fromRedditComment(comment));
 }
 
-function getNewOrUpdatedComments(
+function getNewAndUpdatedComments(
   cachedMap: Map<string, UserComment>,
   current: UserComment[]
-): UserComment[] {
-  return current.filter((comment) => {
+): { new: UserComment[]; updated: UserComment[] } {
+  const newComments: UserComment[] = [];
+  const updatedComments: UserComment[] = [];
+
+  for (const comment of current) {
     const cachedComment = cachedMap.get(comment.id);
 
-    if (!cachedComment) return true; // New comment
-    if (comment.edited && !cachedComment.edited) return true; // Newly edited comment
-    if (comment.body !== cachedComment.body) return true; // Updated comment
+    if (!cachedComment) {
+      newComments.push(comment);
+    } else if (
+      (comment.edited && !cachedComment.edited) ||
+      comment.body !== cachedComment.body
+    ) {
+      updatedComments.push(comment);
+    }
+  }
 
-    return false;
+  current.forEach((comment) => {
+    const cachedComment = cachedMap.get(comment.id);
+
+    if (!cachedComment) {
+      newComments.push(comment);
+    } else if (
+      (comment.edited && !cachedComment.edited) ||
+      comment.body !== cachedComment.body
+    ) {
+      updatedComments.push(comment);
+    }
   });
+
+  return { new: newComments, updated: updatedComments };
 }
 
 function getDateInfo(): string {
@@ -51,6 +72,6 @@ function getTodayTopLevelComments(
 
 export const RedditUtils = {
   processRedditComments,
-  getNewOrUpdatedComments,
+  getNewAndUpdatedComments,
   getTodayTopLevelComments,
 };

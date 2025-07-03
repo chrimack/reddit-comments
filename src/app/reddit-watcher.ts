@@ -57,6 +57,7 @@ async function monitorUserComments() {
   try {
     const comments = await redditService.getUserComments();
     const notificationStats = await ntfyService.sendCommentNotifications(
+      comments.new,
       comments.updated
     );
 

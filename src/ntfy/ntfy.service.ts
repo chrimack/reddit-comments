@@ -1,4 +1,5 @@
 import { Logger, type OperationStats } from '@/logger';
+import type { UserComment } from '@/reddit/types';
 import { NtfyClient } from './ntfy.client.ts';
 import type {
   NtfyNotificationPayload,
@@ -31,19 +32,19 @@ export class NtfyService {
   public async sendCommentNotification({
     permalink,
     author,
+    message,
+    tag,
   }: NtfyNotificationRequest): Promise<void> {
     const url = this.getUrl(permalink);
 
     this.logger.log(`username: ${author}, permalink: ${permalink}`);
-
-    const message = `New or edited comment by ${author}`;
 
     const payload: NtfyNotificationPayload = {
       topic: this.topic,
       message,
       title: 'Check it out...',
       click: url,
-      tags: ['speech_balloon'],
+      tags: [tag ?? 'speech_balloon'],
     };
 
     try {
@@ -56,16 +57,31 @@ export class NtfyService {
   }
 
   public async sendCommentNotifications(
-    userComments: NtfyNotificationRequest[]
+    newComments: UserComment[],
+    updatedComments: UserComment[]
   ): Promise<OperationStats> {
-    const results = await Promise.allSettled(
-      userComments.map((comment) =>
-        this.sendCommentNotification({
-          permalink: comment.permalink,
-          author: comment.author,
-        })
-      )
+    const newPromises = newComments.map((comment) =>
+      this.sendCommentNotification({
+        permalink: comment.permalink,
+        author: comment.author,
+        message: `${comment.author} just commented`,
+        tag: 'speech_balloon',
+      })
     );
+
+    const updatedPromises = updatedComments.map((comment) => {
+      this.sendCommentNotification({
+        permalink: comment.permalink,
+        author: comment.author,
+        message: `${comment.author} edited a comment`,
+        tag: 'pencil2',
+      });
+    });
+
+    const results = await Promise.allSettled([
+      ...newPromises,
+      ...updatedPromises,
+    ]);
 
     return results.reduce(
       (acc, result) => {

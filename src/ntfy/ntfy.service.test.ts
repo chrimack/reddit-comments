@@ -1,4 +1,5 @@
 import type { Logger } from '@/logger';
+import type { UserComment } from '@/reddit/types';
 import { assertEquals } from 'jsr:@std/assert';
 import { assertSpyCalls, spy } from 'jsr:@std/testing/mock';
 import type { NtfyClient } from './ntfy.client.ts';
@@ -20,6 +21,7 @@ Deno.test('sendCommentNotification calls ntfyClient and logs', async () => {
   await service.sendCommentNotification({
     permalink: '/r/test/abc',
     author: 'bob',
+    message: 'bob just commented',
   });
   assertSpyCalls(sendNotification, 1);
   assertSpyCalls(log, 2); // logs before and after
@@ -35,6 +37,7 @@ Deno.test('sendCommentNotification logs error on failure', async () => {
     await service.sendCommentNotification({
       permalink: '/r/test/abc',
       author: 'bob',
+      message: 'bob just commented',
     });
   } catch {
     // intentionally ignored, we only care that error was logged
@@ -53,11 +56,25 @@ Deno.test('sendCommentNotifications returns correct stats', async () => {
     return Promise.resolve();
   });
   const service = new NtfyService(mockNtfyClient, mockLogger);
-  const stats = await service.sendCommentNotifications([
-    { permalink: '/r/test/1', author: 'ok' },
-    { permalink: '/r/test/2', author: 'fail' },
-    { permalink: '/r/test/3', author: 'ok2' },
-  ]);
+  const newComments = [
+    { permalink: '/r/test/1', author: 'ok1', body: '', edited: false, id: 'a' },
+    {
+      permalink: '/r/test/2',
+      author: 'fail',
+      body: '',
+      edited: false,
+      id: 'b',
+    },
+  ] as UserComment[];
+
+  const updatedComments = [
+    { permalink: '/r/test/3', author: 'ok2', body: '', edited: true, id: 'c' },
+  ] as UserComment[];
+
+  const stats = await service.sendCommentNotifications(
+    newComments,
+    updatedComments
+  );
   assertEquals(stats, { success: 2, failed: 1 });
 });
 

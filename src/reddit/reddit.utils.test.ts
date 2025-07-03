@@ -92,7 +92,7 @@ Deno.test('processRedditComments filters by config.app.users and maps', () => {
 });
 
 Deno.test(
-  'getNewOrUpdatedComments detects new, edited, and body changes',
+  'getNewAndUpdatedComments detects new, edited, and body changes',
   () => {
     const cachedMap = new Map<string, UserComment>([
       ['1', createUserComment('1', false, 'old body')],
@@ -109,18 +109,21 @@ Deno.test(
       createUserComment('2', true, 'unchanged'), // newly edited comment, edited true now
     ];
 
-    const result = RedditUtils.getNewOrUpdatedComments(cachedMap, current);
+    const result = RedditUtils.getNewAndUpdatedComments(cachedMap, current);
 
-    const ids = result.map((c) => c.id);
+    const newIds = result.new.map((c) => c.id);
+    const updatedIds = result.updated.map((c) => c.id);
+
     // Should include new comments: 4,5
+    assert(newIds.includes('4'));
+    assert(newIds.includes('5'));
     // Should include updated body: 1
+    assert(updatedIds.includes('1'));
     // Should include newly edited comment 2 (edited changed from false to true)
-    assert(ids.includes('1'));
-    assert(ids.includes('4'));
-    assert(ids.includes('5'));
-    assert(ids.includes('2'));
+    assert(updatedIds.includes('2'));
     // Should not include 3 (no change)
-    assert(!ids.includes('3'));
+    assert(!updatedIds.includes('3'));
+    assert(!newIds.includes('3'));
   }
 );
 
