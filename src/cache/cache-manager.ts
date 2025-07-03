@@ -2,6 +2,8 @@ import { Logger } from '@/logger';
 import { FileUtils } from './file.utils.ts';
 
 export class CacheManager<T = unknown> {
+  private logger = Logger.getInstance();
+
   constructor(private filePath: string) {}
 
   private getCacheKey(date = new Date()): string {
@@ -24,7 +26,7 @@ export class CacheManager<T = unknown> {
         FileUtils.initEmptyFile(this.filePath);
         return {};
       }
-      Logger.error('Error loading cache:', error);
+      this.logger.error('Error loading cache:', error);
       return {};
     }
   }
@@ -34,7 +36,7 @@ export class CacheManager<T = unknown> {
       const data = JSON.stringify(cache, null, 2);
       Deno.writeTextFileSync(this.filePath, data);
     } catch (error) {
-      Logger.error('Error saving cache:', this.filePath, error);
+      this.logger.error('Error saving cache:', this.filePath, error);
     }
   }
 
@@ -61,9 +63,9 @@ export class CacheManager<T = unknown> {
         }
       }
       this.saveCache(cache);
-      Logger.log(`Cleaned up ${this.filePath}, kept: ${todayKey}`);
+      this.logger.log(`Cleaned up ${this.filePath}, kept: ${todayKey}`);
     } catch (error) {
-      Logger.warn(`Failed to clean up ${this.filePath}`, error);
+      this.logger.warn(`Failed to clean up ${this.filePath}`, error);
     }
   }
 }

@@ -11,6 +11,8 @@ import type {
 export class RedditClient {
   private static instance: RedditClient;
   private client: HttpClient;
+  private logger = Logger.getInstance();
+
   private tokenCache: { token: string; expiresAt: number } | null = null;
   private inflightTokenPromise: Promise<string> | null = null;
 
@@ -75,7 +77,7 @@ export class RedditClient {
     }
 
     if (this.inflightTokenPromise) {
-      Logger.log('Token fetch already in progress, awaiting result');
+      this.logger.log('Token fetch already in progress, awaiting result');
       return await this.inflightTokenPromise;
     }
 
@@ -87,11 +89,11 @@ export class RedditClient {
           expiresAt,
         };
 
-        Logger.log('Successfully received access token');
+        this.logger.log('Successfully received access token');
         return response.access_token;
       })
       .catch((error) => {
-        Logger.error(`Error fetching access token`);
+        this.logger.error(`Error fetching access token`);
         throw error;
       })
       .finally(() => {
@@ -128,7 +130,7 @@ export class RedditClient {
     });
 
     if (!response.ok) {
-      Logger.error(
+      this.logger.error(
         `Error fetching access token: ${response.status} ${response.statusText}`
       );
       throw new Error(`Failed to fetch access token: ${response.statusText}`);

@@ -4,6 +4,7 @@ import type { NtfyNotificationPayload } from './types.ts';
 
 export class NtfyClient {
   private client: HttpClient;
+  private logger = Logger.getInstance();
 
   constructor() {
     this.client = new HttpClient('https://ntfy.sh');
@@ -17,7 +18,7 @@ export class NtfyClient {
         body: JSON.stringify(payload),
       });
     } catch (error) {
-      Logger.error(`Error sending notification`, error);
+      this.logger.error(`Error sending notification`, error);
       throw error;
     }
   }

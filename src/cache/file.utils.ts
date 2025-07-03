@@ -7,7 +7,10 @@ function ensureDirForFile(filePath: string): void {
     Deno.mkdirSync(dir, { recursive: true });
   } catch (err) {
     if (!(err instanceof Deno.errors.AlreadyExists)) {
-      Logger.error(`Failed to create cache directory ${dir}:`, err);
+      Logger.getInstance().error(
+        `Failed to create cache directory ${dir}:`,
+        err
+      );
       throw err;
     }
   }
@@ -15,12 +18,13 @@ function ensureDirForFile(filePath: string): void {
 
 function initEmptyFile(filePath: string): void {
   ensureDirForFile(filePath);
+  const logger = Logger.getInstance();
 
   try {
     Deno.writeTextFileSync(filePath, '{}');
-    Logger.log(`Created empty file: ${filePath}`);
+    logger.log(`Created empty file: ${filePath}`);
   } catch (error) {
-    Logger.error(`Failed to write empty file: ${filePath}`, error);
+    logger.error(`Failed to write empty file: ${filePath}`, error);
     throw error;
   }
 }

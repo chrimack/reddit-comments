@@ -2,6 +2,7 @@ import { Logger } from '@/logger';
 import { FileUtils } from './file.utils.ts';
 
 export class CleanupManager {
+  private logger = Logger.getInstance();
   private lastCleanUpDay: string | null = null;
   constructor(private lockFilePath = './cache/.cleanup.lock') {}
 
@@ -26,7 +27,7 @@ export class CleanupManager {
         return false;
       }
     } catch (error) {
-      Logger.warn(
+      this.logger.warn(
         `Could not read cleanup lock file: ${this.lockFilePath}`,
         error
       );

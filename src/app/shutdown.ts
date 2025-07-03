@@ -2,16 +2,18 @@ import { Logger } from '@/logger';
 import { NtfyService } from '@/ntfy';
 
 function handleExit(reason: string, error?: unknown) {
-  Logger.log(`Shutting down: ${reason}`);
+  const logger = Logger.getInstance();
+  const ntfyService = new NtfyService();
+
+  logger.log(`Shutting down: ${reason}`);
 
   if (error) {
-    Logger.error(reason, error);
+    logger.error(reason, error);
     const message = error instanceof Error ? error.message : String(error);
-    NtfyService.sendErrorNotification(
-      `Shutting down due to an error: ${message}`
-    )
+    ntfyService
+      .sendErrorNotification(`Shutting down due to an error: ${message}`)
       .catch((error) => {
-        Logger.error('Things went terribly wrong', error);
+        logger.error('Things went terribly wrong', error);
       })
       .finally(() => Deno.exit(1));
   } else {

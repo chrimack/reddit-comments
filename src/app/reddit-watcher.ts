@@ -9,39 +9,61 @@ let isRunning = false;
 let errorCount = 0;
 const MAX_ERRORS = 3;
 
+async function handlePollingError(
+  error: unknown,
+  logger: Logger,
+  ntfyService: NtfyService,
+  startTime: number
+): Promise<void> {
+  errorCount++;
+  logger.error(`Failed to run watcher`, error);
+
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  await ntfyService.sendErrorNotification(`Watcher failed: ${errorMessage}`);
+
+  if (errorCount >= MAX_ERRORS) {
+    await ntfyService.sendErrorNotification(
+      `Max error limit reached: ${errorCount}, shutting down...`
+    );
+
+    const durationMs = Date.now() - startTime;
+    logger.log(`Polling complete in ${durationMs / 1000}s`);
+    Deno.exit(1);
+  }
+}
+
+function runCleanup() {
+  const cleanup = new CleanupManager();
+  if (cleanup.shouldRunCleanup()) {
+    Object.values(config.cache).forEach((filePath: string) =>
+      new CacheManager(filePath).cleanup()
+    );
+    cleanup.markCleanupRan();
+  }
+}
+
 async function monitorUserComments() {
   const startTime = Date.now();
 
   if (isRunning) return;
   isRunning = true;
 
-  await RedditService.init();
+  const logger = Logger.getInstance();
+  const redditService = new RedditService();
+  const ntfyService = new NtfyService();
+
+  await redditService.init();
 
   try {
-    const comments = await RedditService.getUserComments();
-    const notificationStats = await NtfyService.sendNotifications(
+    const comments = await redditService.getUserComments();
+    const notificationStats = await ntfyService.sendCommentNotifications(
       comments.updated
     );
 
-    Logger.logSummary(comments.stats, notificationStats, startTime);
-    await Logger.flush();
+    logger.logSummary(comments.stats, notificationStats, startTime);
+    await logger.flush();
   } catch (error) {
-    errorCount++;
-    Logger.error(`Failed to run watcher`, error);
-
-    const errorMessage = error instanceof Error ? error.message : String(error);
-
-    await NtfyService.sendErrorNotification(`Watcher failed: ${errorMessage}`);
-
-    if (errorCount >= MAX_ERRORS) {
-      await NtfyService.sendErrorNotification(
-        `Max error limit reached: ${errorCount}, shutting down...`
-      );
-
-      const durationMs = Date.now() - startTime;
-      Logger.log(`Polling complete in ${durationMs / 1000}s`);
-      Deno.exit(1);
-    }
+    await handlePollingError(error, logger, ntfyService, startTime);
   } finally {
     isRunning = false;
   }
@@ -50,15 +72,7 @@ async function monitorUserComments() {
 export function startRedditWatcher(): void {
   if (!isWithinTimeWindow()) return;
 
-  Logger.log(`Starting Reddit Watcher polling...`);
-
-  const cleanup = new CleanupManager();
-  if (cleanup.shouldRunCleanup()) {
-    Object.values(config.cache).forEach((filePath: string) =>
-      new CacheManager(filePath).cleanup()
-    );
-    cleanup.markCleanupRan();
-  }
-
+  Logger.getInstance().log(`Starting Reddit Watcher polling...`);
+  runCleanup();
   monitorUserComments();
 }

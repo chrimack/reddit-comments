@@ -1,78 +1,81 @@
 import * as path from 'https://deno.land/std/path/mod.ts';
 import type { OperationStats } from './types.ts';
 
-const logBuffer: string[] = [];
+export class Logger {
+  private static instance: Logger;
+  private logBuffer: string[] = [];
 
-const getISOTimestamp = () => new Date().toISOString();
-function formatLogLine(
-  level: 'INFO' | 'WARN' | 'ERROR',
-  message: string,
-  ...args: unknown[]
-) {
-  const pad = level === 'ERROR' ? '' : ' ';
-  return `[${level}]${pad} ${getISOTimestamp()} — ${message} ${args
-    .map(String)
-    .join(' ')}`;
-}
+  private constructor() {}
 
-function log(message: string, ...args: unknown[]) {
-  const logLine = formatLogLine('INFO', message, ...args);
-  console.log(logLine);
-  logBuffer.push(logLine);
-}
+  public static getInstance() {
+    if (!this.instance) this.instance = new Logger();
+    return this.instance;
+  }
 
-function warn(message: string, ...args: unknown[]) {
-  const logLine = formatLogLine('WARN', message, ...args);
-  console.warn(logLine);
-  logBuffer.push(logLine);
-}
+  private getISOTimestamp = () => new Date().toISOString();
 
-function error(message: string, ...args: unknown[]) {
-  const logLine = formatLogLine('ERROR', message, ...args);
-  console.error(logLine);
-  logBuffer.push(logLine);
-}
+  private formatLogLine(
+    level: 'INFO' | 'WARN' | 'ERROR',
+    message: string,
+    ...args: unknown[]
+  ) {
+    const pad = level === 'ERROR' ? '' : ' ';
+    return `[${level}]${pad} ${this.getISOTimestamp()} — ${message} ${args
+      .map(String)
+      .join(' ')}`;
+  }
 
-function logSummary(
-  userStats: OperationStats,
-  notificationStats: OperationStats,
-  startTime: number
-) {
-  const totalUsers = userStats.success + userStats.failed;
-  const durationMs = Date.now() - startTime;
+  public log(message: string, ...args: unknown[]) {
+    const logLine = this.formatLogLine('INFO', message, ...args);
+    console.log(logLine);
+    this.logBuffer.push(logLine);
+  }
 
-  Logger.log(
-    `Finished polling ${totalUsers} users, ${userStats.failed} failed`
-  );
-  Logger.log(
-    `Notifications sent: ${notificationStats.success} successful, ${notificationStats.failed} failed`
-  );
-  Logger.log(`Polling complete in ${durationMs / 1000}s`);
-}
+  public warn(message: string, ...args: unknown[]) {
+    const logLine = this.formatLogLine('WARN', message, ...args);
+    console.warn(logLine);
+    this.logBuffer.push(logLine);
+  }
 
-async function flushLogsToFile(): Promise<void> {
-  if (logBuffer.length === 0) return;
-  const date = getISOTimestamp().split('T')[0];
-  const filePath = `./logs/${date}.txt`;
+  public error(message: string, ...args: unknown[]) {
+    const logLine = this.formatLogLine('ERROR', message, ...args);
+    console.error(logLine);
+    this.logBuffer.push(logLine);
+  }
 
-  const dir = path.dirname(filePath);
-  await Deno.mkdir(dir, { recursive: true });
+  public logSummary(
+    userStats: OperationStats,
+    notificationStats: OperationStats,
+    startTime: number
+  ) {
+    const totalUsers = userStats.success + userStats.failed;
+    const durationMs = Date.now() - startTime;
 
-  const separator = `\n----- Log batch flush at ${getISOTimestamp()} -----\n`;
-  const data = separator + logBuffer.join('\n') + '\n';
+    this.log(
+      `Finished polling ${totalUsers} users, ${userStats.failed} failed`
+    );
+    this.log(
+      `Notifications sent: ${notificationStats.success} successful, ${notificationStats.failed} failed`
+    );
+    this.log(`Polling complete in ${durationMs / 1000}s`);
+  }
 
-  try {
-    await Deno.writeTextFile(filePath, data, { append: true });
-    logBuffer.length = 0;
-  } catch (error) {
-    console.error('Failed to write logs to file: ', error);
+  public async flush(): Promise<void> {
+    if (this.logBuffer.length === 0) return;
+    const date = this.getISOTimestamp().split('T')[0];
+    const filePath = `./logs/${date}.txt`;
+
+    const dir = path.dirname(filePath);
+    await Deno.mkdir(dir, { recursive: true });
+
+    const separator = `\n----- Log batch flush at ${this.getISOTimestamp()} -----\n`;
+    const data = separator + this.logBuffer.join('\n') + '\n';
+
+    try {
+      await Deno.writeTextFile(filePath, data, { append: true });
+      this.logBuffer.length = 0;
+    } catch (error) {
+      console.error('Failed to write logs to file: ', error);
+    }
   }
 }
-
-export const Logger = {
-  log,
-  warn,
-  error,
-  flush: flushLogsToFile,
-  logSummary,
-};

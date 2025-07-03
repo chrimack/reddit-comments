@@ -6,7 +6,7 @@ export function runNowAndSchedule(
   cronExpr: string,
   fn: () => void | Promise<void>
 ): void {
-  Logger.log('Starting initial run...');
+  Logger.getInstance().log('Starting initial run...');
   fn();
   cron(cronExpr, fn);
 }

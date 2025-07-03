@@ -1,3 +1,5 @@
+import type { UserComment } from '@/reddit/types';
+
 interface NtfyAction {
   action: string;
   label: string;
@@ -15,7 +17,4 @@ export interface NtfyNotificationPayload {
   click?: string;
 }
 
-export interface NtfyNotificationRequest {
-  permalink: string;
-  username: string;
-}
+export type NtfyNotificationRequest = Pick<UserComment, 'author' | 'permalink'>;
