@@ -48,7 +48,7 @@ function getTodayDateString() {
 function formatDate(
   date = new Date(),
   options: Intl.DateTimeFormatOptions = DEFAULT_OPTIONS,
-  locale = 'en-US',
+  locale = 'en-CA', // 'YYYY-MM-DD'
   timeZone = config.app.timeZone
 ): string {
   const formatter = new Intl.DateTimeFormat(locale, { ...options, timeZone });

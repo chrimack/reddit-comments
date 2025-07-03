@@ -1,5 +1,6 @@
 import { config } from '@/config';
 import type { RedditComment, RedditListing, UserComment } from '@/reddit/types';
+import { DateUtils } from '@/utils';
 import { RedditMapper } from './reddit.mapper.ts';
 
 function processRedditComments(redditComments: RedditComment[]): UserComment[] {
@@ -25,10 +26,10 @@ function getNewOrUpdatedComments(
 
 function getDateInfo(): string {
   const date = new Date();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const year = date.getFullYear().toString().slice(-2);
-  const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
+  const month = DateUtils.formatDate(date, { month: 'numeric' });
+  const day = DateUtils.formatDate(date, { day: 'numeric' });
+  const year = DateUtils.formatDate(date, { year: '2-digit' });
+  const weekday = DateUtils.formatDate(date, { weekday: 'long' });
   return `${month}/${day}/${year} (${weekday})`;
 }
 
