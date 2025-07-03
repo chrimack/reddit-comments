@@ -51,6 +51,7 @@ export class NtfyService {
       this.logger.log(`Notification sent successfully for ${author}`);
     } catch (error) {
       this.logger.error(`Error sending notification for ${author}`, error);
+      throw error;
     }
   }
 

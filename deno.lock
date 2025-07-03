@@ -2,7 +2,9 @@
   "version": "5",
   "specifiers": {
     "jsr:@std/assert@*": "1.0.13",
-    "jsr:@std/internal@^1.0.6": "1.0.9"
+    "jsr:@std/assert@^1.0.13": "1.0.13",
+    "jsr:@std/internal@^1.0.6": "1.0.9",
+    "jsr:@std/testing@*": "1.0.14"
   },
   "jsr": {
     "@std/assert@1.0.13": {
@@ -13,6 +15,12 @@
     },
     "@std/internal@1.0.9": {
       "integrity": "bdfb97f83e4db7a13e8faab26fb1958d1b80cc64366501af78a0aee151696eb8"
+    },
+    "@std/testing@1.0.14": {
+      "integrity": "144b3737105b9071cb50c957681f58a1b8ec0f3e5b19ad830f401c5fa931e8f0",
+      "dependencies": [
+        "jsr:@std/assert@^1.0.13"
+      ]
     }
   },
   "redirects": {
@@ -20,6 +28,7 @@
     "https://deno.land/std/fs/mod.ts": "https://deno.land/std@0.224.0/fs/mod.ts",
     "https://deno.land/std/path/mod.ts": "https://deno.land/std@0.224.0/path/mod.ts",
     "https://deno.land/std/testing/asserts.ts": "https://deno.land/std@0.224.0/testing/asserts.ts",
+    "https://deno.land/std/testing/mock.ts": "https://deno.land/std@0.224.0/testing/mock.ts",
     "https://deno.land/x/date_fns": "https://deno.land/x/date_fns@v2.22.1",
     "https://deno.land/x/date_fns/index.js": "https://deno.land/x/date_fns@v2.22.1/index.js",
     "https://deno.land/x/deno_cron/cron.ts": "https://deno.land/x/deno_cron@v1.0.0/cron.ts"
@@ -156,6 +165,7 @@
     "https://deno.land/std@0.224.0/path/windows/to_file_url.ts": "40e560ee4854fe5a3d4d12976cef2f4e8914125c81b11f1108e127934ced502e",
     "https://deno.land/std@0.224.0/path/windows/to_namespaced_path.ts": "4ffa4fb6fae321448d5fe810b3ca741d84df4d7897e61ee29be961a6aac89a4c",
     "https://deno.land/std@0.224.0/testing/asserts.ts": "d0cdbabadc49cc4247a50732ee0df1403fdcd0f95360294ad448ae8c240f3f5c",
+    "https://deno.land/std@0.224.0/testing/mock.ts": "a963181c2860b6ba3eb60e08b62c164d33cf5da7cd445893499b2efda20074db",
     "https://deno.land/x/date_fns@v2.22.1/_lib/addLeadingZeros/index.js": "2678175ae21bc13620cba3b46d0d82ce79569989e8a250893a0509091b8ec670",
     "https://deno.land/x/date_fns@v2.22.1/_lib/assign/index.js": "d83e06df54c34ff2db123d917fe334b02a073e69c65f257532a084bf24925623",
     "https://deno.land/x/date_fns@v2.22.1/_lib/cloneObject/index.js": "f79cf3de3962f6c801377eb8d93bdc66cf21682caccb99fa5a29dfb958de129c",
