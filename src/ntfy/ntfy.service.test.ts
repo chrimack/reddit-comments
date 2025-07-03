@@ -28,11 +28,18 @@ Deno.test('sendCommentNotification calls ntfyClient and logs', async () => {
 Deno.test('sendCommentNotification logs error on failure', async () => {
   const { mockNtfyClient, mockLogger, error } = createMocks();
   mockNtfyClient.sendNotification = () => Promise.reject(new Error('fail'));
+
   const service = new NtfyService(mockNtfyClient, mockLogger);
-  await service.sendCommentNotification({
-    permalink: '/r/test/abc',
-    author: 'bob',
-  });
+
+  try {
+    await service.sendCommentNotification({
+      permalink: '/r/test/abc',
+      author: 'bob',
+    });
+  } catch {
+    // intentionally ignored, we only care that error was logged
+  }
+
   assertSpyCalls(error, 1);
 });
 

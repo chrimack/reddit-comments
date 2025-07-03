@@ -16,13 +16,17 @@ export class RedditClient {
   private tokenCache: { token: string; expiresAt: number } | null = null;
   private inflightTokenPromise: Promise<string> | null = null;
 
-  private constructor(httpClient?: HttpClient, logger?: Logger) {
+  protected constructor(httpClient?: HttpClient, logger?: Logger) {
     this.client = httpClient ?? new HttpClient('https://oauth.reddit.com');
     this.logger = logger ?? Logger.getInstance();
   }
 
-  public static getInstance(): RedditClient {
-    if (!RedditClient.instance) RedditClient.instance = new RedditClient();
+  public static getInstance(
+    httpClient?: HttpClient,
+    logger?: Logger
+  ): RedditClient {
+    if (!RedditClient.instance)
+      RedditClient.instance = new RedditClient(httpClient, logger);
     return RedditClient.instance;
   }
 
