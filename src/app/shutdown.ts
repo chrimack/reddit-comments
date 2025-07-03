@@ -15,9 +15,11 @@ function handleExit(reason: string, error?: unknown) {
       .catch((error) => {
         logger.error('Things went terribly wrong', error);
       })
-      .finally(() => Deno.exit(1));
+      .finally(() => {
+        logger.flush().finally(() => Deno.exit(1));
+      });
   } else {
-    Deno.exit(0);
+    logger.flush().finally(() => Deno.exit(0));
   }
 }
 
