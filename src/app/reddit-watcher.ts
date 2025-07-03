@@ -28,7 +28,7 @@ async function handlePollingError(
 
     const durationMs = Date.now() - startTime;
     logger.log(`Polling complete in ${durationMs / 1000}s`);
-    Deno.exit(1);
+    logger.flush().finally(() => Deno.exit(1));
   }
 }
 
