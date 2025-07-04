@@ -15,32 +15,22 @@ function getNewAndUpdatedComments(
 ): { new: UserComment[]; updated: UserComment[] } {
   const newComments: UserComment[] = [];
   const updatedComments: UserComment[] = [];
+  const acc = { new: newComments, updated: updatedComments };
 
-  for (const comment of current) {
+  current.reduce((acc, comment) => {
     const cachedComment = cachedMap.get(comment.id);
 
     if (!cachedComment) {
-      newComments.push(comment);
+      acc.new.push(comment);
     } else if (
       (comment.edited && !cachedComment.edited) ||
       comment.body !== cachedComment.body
     ) {
-      updatedComments.push(comment);
+      acc.updated.push(comment);
     }
-  }
 
-  current.forEach((comment) => {
-    const cachedComment = cachedMap.get(comment.id);
-
-    if (!cachedComment) {
-      newComments.push(comment);
-    } else if (
-      (comment.edited && !cachedComment.edited) ||
-      comment.body !== cachedComment.body
-    ) {
-      updatedComments.push(comment);
-    }
-  });
+    return acc;
+  }, acc);
 
   return { new: newComments, updated: updatedComments };
 }

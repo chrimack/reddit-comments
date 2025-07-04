@@ -71,9 +71,14 @@ async function monitorUserComments() {
 }
 
 export function startRedditWatcher(): void {
-  if (!isWithinTimeWindow()) return;
+  const logger = Logger.getInstance();
 
-  Logger.getInstance().log(`Starting Reddit Watcher polling...`);
+  if (!isWithinTimeWindow()) {
+    logger.log('Outside of app time window');
+    return;
+  }
+
+  logger.log(`Starting Reddit Watcher polling...`);
   runCleanup();
   monitorUserComments();
 }
