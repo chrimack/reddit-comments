@@ -1,7 +1,8 @@
+import { env } from './env.ts';
 import type { AppConfig } from './types/app-config.ts';
 
 export const appConfig: AppConfig = {
-  ntfyTopic: 'reddit-watcher-swapping-carnation5-stability',
+  ntfyTopic: env.NTFY_TOPIC,
   users: [
     'abetterbettor',
     'e77754321',
