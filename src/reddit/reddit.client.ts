@@ -10,16 +10,14 @@ import type {
 
 export class RedditClient {
   private static instance: RedditClient;
-  private client: HttpClient;
-  private logger: Logger;
 
   private tokenCache: { token: string; expiresAt: number } | null = null;
   private inflightTokenPromise: Promise<string> | null = null;
 
-  protected constructor(httpClient?: HttpClient, logger?: Logger) {
-    this.client = httpClient ?? new HttpClient('https://oauth.reddit.com');
-    this.logger = logger ?? Logger.getInstance();
-  }
+  protected constructor(
+    private client = new HttpClient('https://oauth.reddit.com'),
+    private logger = Logger.getInstance()
+  ) {}
 
   public static getInstance(
     httpClient?: HttpClient,

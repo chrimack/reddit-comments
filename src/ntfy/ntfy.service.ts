@@ -1,3 +1,4 @@
+import { config } from '@/config';
 import { Logger, type OperationStats } from '@/logger';
 import type { UserComment } from '@/reddit/types';
 import { NtfyClient } from './ntfy.client.ts';
@@ -7,19 +8,16 @@ import type {
 } from './types.ts';
 
 export class NtfyService {
-  private ntfyClient: NtfyClient;
-  private logger: Logger;
-
-  private readonly topic = 'reddit-watcher-swapping-carnation5-stability';
   private readonly redditBaseUrls = [
     'https://www.reddit.com',
     'https://reddit.com',
   ];
 
-  constructor(ntfyClient?: NtfyClient, logger?: Logger) {
-    this.ntfyClient = ntfyClient ?? new NtfyClient();
-    this.logger = logger ?? Logger.getInstance();
-  }
+  constructor(
+    private ntfyClient = new NtfyClient(),
+    private logger = Logger.getInstance(),
+    private topic = config.app.ntfyTopic
+  ) {}
 
   private getUrl(permalink: string) {
     const includesDomain = this.redditBaseUrls.some((url) =>

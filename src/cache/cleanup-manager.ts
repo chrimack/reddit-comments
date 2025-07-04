@@ -3,12 +3,12 @@ import { DateUtils } from '@/utils';
 import { FileUtils } from './file.utils.ts';
 
 export class CleanupManager {
-  private logger: Logger;
   private lastCleanUpDay: string | null = null;
 
-  constructor(private lockFilePath = './cache/.cleanup.lock', logger?: Logger) {
-    this.logger = logger ?? Logger.getInstance();
-  }
+  constructor(
+    private lockFilePath = './cache/.cleanup.lock',
+    private logger = Logger.getInstance()
+  ) {}
 
   public shouldRunCleanup() {
     const today = DateUtils.getTodayDateString();

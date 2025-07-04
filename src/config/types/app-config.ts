@@ -1,4 +1,7 @@
 export interface AppConfig {
+  /** Topic used to subscribe to Ntfy alerts */
+  ntfyTopic: string;
+
   /** Users to watch */
   users: string[];
 

@@ -41,6 +41,7 @@ function getDateInfo(): string {
   const day = DateUtils.formatDate(date, { day: 'numeric' });
   const year = DateUtils.formatDate(date, { year: '2-digit' });
   const weekday = DateUtils.formatDate(date, { weekday: 'long' });
+
   return `${month}/${day}/${year} (${weekday})`;
 }
 
@@ -62,6 +63,7 @@ function getTodayTopLevelComments(
 
 export const RedditUtils = {
   processRedditComments,
+  getDateInfo,
   getNewAndUpdatedComments,
   getTodayTopLevelComments,
 };

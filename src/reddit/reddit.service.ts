@@ -11,13 +11,10 @@ import { RedditClient } from './reddit.client.ts';
 import { RedditUtils } from './reddit.utils.ts';
 
 export class RedditService {
-  private redditClient: RedditClient;
-  private logger: Logger;
-
-  constructor(redditClient?: RedditClient, logger?: Logger) {
-    this.redditClient = redditClient ?? RedditClient.getInstance();
-    this.logger = logger ?? Logger.getInstance();
-  }
+  constructor(
+    private redditClient = RedditClient.getInstance(),
+    private logger = Logger.getInstance()
+  ) {}
 
   public async init(): Promise<void> {
     await this.redditClient.init();

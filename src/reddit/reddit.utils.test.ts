@@ -128,12 +128,7 @@ Deno.test(
 );
 
 Deno.test('getTodayTopLevelComments filters correctly', () => {
-  // Mock getDateInfo to control date string used in link_title filtering
-  const originalGetDateInfo =
-    (globalThis as Record<string, unknown>).getDateInfo || null;
-  (globalThis as Record<string, unknown>).getDateInfo = () =>
-    '7/3/25 (Thursday)';
-
+  const dateInfo = RedditUtils.getDateInfo();
   // Construct listing with various children
   const listing: RedditListing<RedditComment> = {
     kind: 'Listing',
@@ -145,7 +140,7 @@ Deno.test('getTodayTopLevelComments filters correctly', () => {
           kind: 't1',
           data: createRedditComment({
             subreddit: 'sportsbook',
-            link_title: 'Betting tips 7/3/25 (Thursday)',
+            link_title: `Betting tips ${dateInfo}`,
             parent_id: 't3_post1', // top-level
           }),
         },
@@ -153,7 +148,7 @@ Deno.test('getTodayTopLevelComments filters correctly', () => {
           kind: 't1',
           data: createRedditComment({
             subreddit: 'sportsbook',
-            link_title: 'Betting tips 7/3/25 (Thursday)',
+            link_title: `Betting tips ${dateInfo}`,
             parent_id: 't1_comment1', // not top-level
           }),
         },
@@ -161,7 +156,7 @@ Deno.test('getTodayTopLevelComments filters correctly', () => {
           kind: 't1',
           data: createRedditComment({
             subreddit: 'othersubreddit',
-            link_title: 'Betting tips 7/3/25 (Thursday)',
+            link_title: `Betting tips ${dateInfo}`,
             parent_id: 't3_post2',
           }),
         },
@@ -206,7 +201,4 @@ Deno.test('getTodayTopLevelComments filters correctly', () => {
 
   // Restore
   RedditMapper.fromRedditComment = originalMapper;
-  if (originalGetDateInfo)
-    (globalThis as Record<string, unknown>).getDateInfo = originalGetDateInfo;
-  else delete (globalThis as Record<string, unknown>).getDateInfo;
 });
