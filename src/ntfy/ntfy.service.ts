@@ -27,11 +27,17 @@ export class NtfyService {
     return includesDomain ? permalink : `${this.redditBaseUrls[0]}${permalink}`;
   }
 
+  private truncateBody(body: string, maxLength = 50) {
+    if (body.length < maxLength) return body;
+    return body.slice(0, maxLength - 3) + '...';
+  }
+
   public async sendCommentNotification({
     permalink,
     author,
     message,
-    tag,
+    title,
+    tags,
   }: NtfyNotificationRequest): Promise<void> {
     const url = this.getUrl(permalink);
 
@@ -40,9 +46,17 @@ export class NtfyService {
     const payload: NtfyNotificationPayload = {
       topic: this.topic,
       message,
-      title: 'Check it out...',
+      title: title ?? 'Check it out...',
       click: url,
-      tags: [tag ?? 'speech_balloon'],
+      tags,
+      actions: [
+        {
+          action: 'view',
+          label: 'View Comment',
+          url,
+          clear: false,
+        },
+      ],
     };
 
     try {
@@ -62,8 +76,9 @@ export class NtfyService {
       this.sendCommentNotification({
         permalink: comment.permalink,
         author: comment.author,
-        message: `${comment.author} just commented`,
-        tag: 'speech_balloon',
+        title: `${comment.author} just commented`,
+        message: this.truncateBody(comment.body),
+        tags: ['speech_balloon'],
       })
     );
 
@@ -71,8 +86,9 @@ export class NtfyService {
       this.sendCommentNotification({
         permalink: comment.permalink,
         author: comment.author,
-        message: `${comment.author} edited a comment`,
-        tag: 'pencil2',
+        title: `${comment.author} edited a comment`,
+        message: this.truncateBody(comment.body),
+        tags: ['pencil2'],
       });
     });
 

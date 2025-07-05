@@ -48,7 +48,7 @@ function getDateInfo(): string {
 function getTodayTopLevelComments(
   listing: RedditListing<RedditComment>,
   subreddit: string
-): UserComment[] {
+): { redditComments: RedditComment[]; userComments: UserComment[] } {
   const redditComments = listing.data.children
     .map((child) => child.data)
     .filter(
@@ -58,7 +58,10 @@ function getTodayTopLevelComments(
         child.parent_id.startsWith('t3') // only get top-level comments
     );
 
-  return redditComments.map(RedditMapper.fromRedditComment);
+  return {
+    redditComments,
+    userComments: redditComments.map(RedditMapper.fromRedditComment),
+  };
 }
 
 export const RedditUtils = {

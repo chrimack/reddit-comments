@@ -20,4 +20,5 @@ export interface NtfyNotificationPayload {
 export type NtfyNotificationRequest = Pick<
   UserComment,
   'author' | 'permalink'
-> & { message: string; tag?: string };
+> &
+  Omit<NtfyNotificationPayload, 'topic'>;

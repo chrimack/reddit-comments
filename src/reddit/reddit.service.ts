@@ -35,20 +35,21 @@ export class RedditService {
     let success = 0;
     let failed = 0;
 
+    const allRedditComments: RedditComment[] = [];
+
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
       const username = usernames[i];
 
       if (result.status === 'fulfilled') {
         const listing = result.value;
-        const filtered = RedditUtils.getTodayTopLevelComments(
-          listing,
-          config.app.subreddit
-        );
-        all.push(...filtered);
+        const { redditComments, userComments } =
+          RedditUtils.getTodayTopLevelComments(listing, config.app.subreddit);
+        all.push(...userComments);
+        allRedditComments.push(...redditComments);
 
         const { new: currentNew, updated: currentUpdated } =
-          RedditUtils.getNewAndUpdatedComments(cacheMap, filtered);
+          RedditUtils.getNewAndUpdatedComments(cacheMap, userComments);
         newComments.push(...currentNew);
         updated.push(...currentUpdated);
 
@@ -62,6 +63,10 @@ export class RedditService {
         );
       }
     }
+
+    new CacheManager<RedditComment[]>('./cache/reddit-comments.json').set(
+      allRedditComments
+    );
 
     cacheManager.set(all);
 
