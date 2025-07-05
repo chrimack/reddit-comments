@@ -87,7 +87,7 @@ export class NtfyService {
         permalink: comment.permalink,
         author: comment.author,
         title: `${comment.author} edited a comment`,
-        message: this.truncateBody(comment.body),
+        message: comment.diffPreview ?? this.truncateBody(comment.body),
         tags: ['pencil2'],
       });
     });

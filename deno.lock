@@ -4,7 +4,8 @@
     "jsr:@std/assert@*": "1.0.13",
     "jsr:@std/assert@^1.0.13": "1.0.13",
     "jsr:@std/internal@^1.0.6": "1.0.9",
-    "jsr:@std/testing@*": "1.0.14"
+    "jsr:@std/testing@*": "1.0.14",
+    "npm:diff@*": "8.0.2"
   },
   "jsr": {
     "@std/assert@1.0.13": {
@@ -21,6 +22,11 @@
       "dependencies": [
         "jsr:@std/assert@^1.0.13"
       ]
+    }
+  },
+  "npm": {
+    "diff@8.0.2": {
+      "integrity": "sha512-sSuxWU5j5SR9QQji/o2qMvqRNYRDOcBTgsJ/DeCf4iSN4gW+gNMXM7wFIP+fdXZxoNiAnHUTGjCr+TSWXdRDKg=="
     }
   },
   "redirects": {

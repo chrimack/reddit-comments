@@ -35,7 +35,7 @@ function createRedditComment(
 
 function createUserComment(
   id = 'abc123',
-  edited = false,
+  edited: boolean | number = false,
   body = 'Hello world'
 ): UserComment {
   return {
@@ -97,16 +97,15 @@ Deno.test(
     const cachedMap = new Map<string, UserComment>([
       ['1', createUserComment('1', false, 'old body')],
       ['2', createUserComment('2', false, 'unchanged')],
-      ['3', createUserComment('3', true, 'edited body')],
+      ['3', createUserComment('3', 1720000000, 'already edited')], // was edited before
     ]);
 
     const current: UserComment[] = [
-      createUserComment('1', false, 'new body'), // body changed
-      createUserComment('2', false, 'unchanged'), // same
-      createUserComment('3', true, 'edited body'), // same
-      createUserComment('4', false, 'brand new'), // new comment
-      createUserComment('5', true, 'new edit'), // new comment with edit
-      createUserComment('2', true, 'unchanged'), // newly edited comment, edited true now
+      createUserComment('1', false, 'new body'), // same edited, body changed — now ignored
+      createUserComment('2', 1720000000, 'unchanged'), // was unedited, now edited (number) — updated
+      createUserComment('3', 1720000100, 'already edited'), // newer edit timestamp — updated
+      createUserComment('4', false, 'brand new'), // new comment — new
+      createUserComment('5', 1720000200, 'new edit'), // new comment with timestamped edit — new
     ];
 
     const result = RedditUtils.getNewAndUpdatedComments(cachedMap, current);
@@ -114,16 +113,22 @@ Deno.test(
     const newIds = result.new.map((c) => c.id);
     const updatedIds = result.updated.map((c) => c.id);
 
-    // Should include new comments: 4,5
-    assert(newIds.includes('4'));
-    assert(newIds.includes('5'));
-    // Should include updated body: 1
-    assert(updatedIds.includes('1'));
-    // Should include newly edited comment 2 (edited changed from false to true)
-    assert(updatedIds.includes('2'));
-    // Should not include 3 (no change)
-    assert(!updatedIds.includes('3'));
-    assert(!newIds.includes('3'));
+    console.log('new:', newIds);
+    console.log('updated:', updatedIds);
+
+    // New comments
+    assert(newIds.includes('4')); // new and unedited
+    assert(newIds.includes('5')); // new with edited timestamp
+
+    // Updated comments
+    assert(updatedIds.includes('2')); // went from unedited → edited
+    assert(updatedIds.includes('3')); // edited timestamp increased
+
+    // Should NOT include:
+    assert(!updatedIds.includes('1')); // same edited, body change is now ignored
+    assert(!newIds.includes('1'));
+    assert(!updatedIds.includes('4'));
+    assert(!updatedIds.includes('5'));
   }
 );
 
@@ -194,10 +199,10 @@ Deno.test('getTodayTopLevelComments filters correctly', () => {
 
   const result = RedditUtils.getTodayTopLevelComments(listing, 'sportsbook');
 
-  assertEquals(result.length, 1);
+  assertEquals(result.userComments.length, 1);
   assertEquals(mappedCount, 1);
-  assertEquals(result[0].parentId.startsWith('t3'), true);
-  assertEquals(result[0].subreddit, 'sportsbook');
+  assertEquals(result.userComments[0].parentId.startsWith('t3'), true);
+  assertEquals(result.userComments[0].subreddit, 'sportsbook');
 
   // Restore
   RedditMapper.fromRedditComment = originalMapper;

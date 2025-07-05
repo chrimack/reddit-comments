@@ -9,6 +9,17 @@ function processRedditComments(redditComments: RedditComment[]): UserComment[] {
     .map((comment) => RedditMapper.fromRedditComment(comment));
 }
 
+function isUpdated(
+  cachedEdit: UserComment['edited'],
+  currentEdit: UserComment['edited']
+) {
+  if (typeof currentEdit === 'boolean') return false; // Fresh comment is unedited
+  if (typeof cachedEdit === 'boolean') return true; // Was unedited before, now edited
+
+  // Both are timestamps — check if it's a newer edit
+  return currentEdit > cachedEdit;
+}
+
 function getNewAndUpdatedComments(
   cachedMap: Map<string, UserComment>,
   current: UserComment[]
@@ -22,10 +33,7 @@ function getNewAndUpdatedComments(
 
     if (!cachedComment) {
       acc.new.push(comment);
-    } else if (
-      (comment.edited && !cachedComment.edited) ||
-      comment.body !== cachedComment.body
-    ) {
+    } else if (isUpdated(cachedComment.edited, comment.edited)) {
       acc.updated.push(comment);
     }
 

@@ -47,7 +47,12 @@ export interface RedditComment {
   subreddit_name_prefixed: string;
 
   created_utc: number;
-  edited: boolean;
+
+  /**
+   * - `false`: The item has not been edited.
+   * - `number`: The Unix timestamp of when the item was last edited (in seconds).
+   */
+  edited: boolean | number;
 
   permalink: string;
 }

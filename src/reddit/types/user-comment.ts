@@ -24,12 +24,18 @@ export interface UserComment {
   /** Comment text */
   body: string;
 
-  /** Whether the comment has been edited */
-  edited: boolean;
+  /**
+   * - `false`: The item has not been edited.
+   * - `number`: The Unix timestamp of when the item was last edited (in seconds).
+   */
+  edited: boolean | number;
 
   /** Permalink to the comment */
   permalink: string;
   name: string;
+
+  /** Optional field added to updated comments to show a preview of the changes */
+  diffPreview?: string;
 }
 
 export interface UserCommentSyncResult {

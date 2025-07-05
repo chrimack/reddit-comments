@@ -7,6 +7,7 @@ import type {
   UserComment,
   UserCommentSyncResult,
 } from '@/reddit/types';
+import { DiffUtils } from '@/utils';
 import { RedditClient } from './reddit.client.ts';
 import { RedditUtils } from './reddit.utils.ts';
 
@@ -64,6 +65,19 @@ export class RedditService {
       }
     }
 
+    const updatedWithDiffs: UserComment[] = updated.map((comment) => {
+      const cached = cacheMap.get(comment.id);
+      const diffPreview = DiffUtils.getCommentDiff(
+        cached?.body ?? '',
+        comment.body
+      );
+
+      return {
+        ...comment,
+        diffPreview,
+      };
+    });
+
     new CacheManager<RedditComment[]>('./cache/reddit-comments.json').set(
       allRedditComments
     );
@@ -73,7 +87,7 @@ export class RedditService {
     return {
       all,
       new: newComments,
-      updated,
+      updated: updatedWithDiffs,
       stats: { failed, success },
     };
   }

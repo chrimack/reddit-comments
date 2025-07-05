@@ -50,8 +50,8 @@ Deno.test('sendCommentNotifications returns correct stats', async () => {
   const { mockNtfyClient, mockLogger } = createMocks();
   // Fail the second notification
   mockNtfyClient.sendNotification = spy((_payload: NtfyNotificationPayload) => {
-    // the author property is added to the message in the payload
-    if (_payload.message.includes('fail'))
+    // the author property is added to the title in the payload
+    if (_payload.title?.includes('fail'))
       return Promise.reject(new Error('fail'));
     return Promise.resolve();
   });
