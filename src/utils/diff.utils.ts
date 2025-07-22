@@ -68,11 +68,11 @@ function extractAddedChanges(diff: ChangeObject<string>[]): string[] {
   return changes;
 }
 
-function getCommentDiff(oldBody: string, newBody: string) {
+function getCommentDiff(oldBody: string, newBody: string): string | undefined {
   const diff = diffWords(oldBody, newBody, { ignoreCase: true });
   const changes = extractAddedChanges(diff);
 
-  if (changes.length === 0) return 'No visible changes.';
+  if (changes.length === 0) return;
 
   return changes.slice(0, CONFIG.maxChanges).join('\n');
 }

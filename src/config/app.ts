@@ -13,6 +13,10 @@ export const appConfig: AppConfig = {
     'Skipperdees_ears',
     'UnusualBad5037',
     'PurpleDragonBets',
+    'FlawdaBoiJo',
+    'BreakfastAtWimbledon',
+    'BellesPicks',
+    'Timely-Conclusion532',
   ],
   subreddit: 'sportsbook',
   timeWindow: {

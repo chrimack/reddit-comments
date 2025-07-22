@@ -1,4 +1,4 @@
-import { assertEquals, assertStringIncludes } from 'jsr:@std/assert';
+import { assert, assertEquals, assertStringIncludes } from 'jsr:@std/assert';
 import { DiffUtils } from './diff.utils.ts';
 
 const testData = [
@@ -16,8 +16,7 @@ Deno.test('getCommentDiff - detects added lines in testData[0]', () => {
   const { old, new: newText } = testData[0];
   const diff = DiffUtils.getCommentDiff(old, newText);
 
-  console.log(diff);
-
+  assert(diff !== undefined, 'Expected diff to be defined');
   assertStringIncludes(diff, 'Matthew Liberatore over 3.5 strikeouts');
   assertStringIncludes(diff, 'Jonathan Cannon over 3.5 s');
 });
@@ -26,30 +25,24 @@ Deno.test('getCommentDiff - detects added lines in testData[1]', () => {
   const { old, new: newText } = testData[1];
   const diff = DiffUtils.getCommentDiff(old, newText);
 
-  console.log(diff);
-
+  assert(diff !== undefined, 'Expected diff to be defined');
   // Only check for the first detected addition, which is guaranteed to be present
   assertStringIncludes(diff, 'STL/CHC - CHC ML (-135)');
 });
 
-Deno.test(
-  "getCommentDiff - returns 'No visible changes.' for identical input",
-  () => {
-    const text = testData[0].old;
-    const diff = DiffUtils.getCommentDiff(text, text);
+Deno.test('getCommentDiff - returns undefined for identical input', () => {
+  const text = testData[0].old;
+  const diff = DiffUtils.getCommentDiff(text, text);
 
-    console.log(diff);
-    assertEquals(diff, 'No visible changes.');
-  }
-);
+  assertEquals(diff, undefined);
+});
 
 Deno.test('getCommentDiff - ignores trivial changes (case, whitespace)', () => {
   const old = 'This is a test.';
   const newText = 'This   is a test.';
   const diff = DiffUtils.getCommentDiff(old, newText);
 
-  console.log(diff);
-  assertEquals(diff, 'No visible changes.');
+  assertEquals(diff, undefined);
 });
 
 Deno.test('getCommentDiff - trims long additions', () => {
@@ -58,8 +51,7 @@ Deno.test('getCommentDiff - trims long additions', () => {
   const newText = old + longText + '\n';
   const diff = DiffUtils.getCommentDiff(old, newText);
 
-  console.log(diff);
-
+  assert(diff !== undefined, 'Expected diff to be defined');
   const match = diff.match(/➕ "…[^"]+"/);
   if (!match) throw new Error('No preview found in diff');
 
@@ -76,8 +68,7 @@ Deno.test('getCommentDiff - handles additions at beginning and end', () => {
   const newText = 'Start added. ' + old + ' End added.';
   const diff = DiffUtils.getCommentDiff(old, newText);
 
-  console.log(diff);
-
+  assert(diff !== undefined, 'Expected diff to be defined');
   assertStringIncludes(diff, 'Start added');
   assertStringIncludes(diff, 'End added');
 });
